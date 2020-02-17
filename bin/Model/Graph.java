@@ -1,20 +1,35 @@
 package bin.Model;
 import java.util.*;
-import java.lang.Math;
 
 
 public class Graph
 {
 	// This is a 1-graph.
+	// perhaps remove the "private" states
+	
+	// Contains all the vertices and their positions
 	private Map<Integer,Point> verPos;
-	private Map edges;
+	@SuppressWarnings("rawtypes")
+	
+	// Contain all the edges (keys : the first vertices. Data : all the goals vertices and value of the edge
+	private Map<Integer, HashMap<Integer,Edge>> edges;
 	private boolean oriented;
+	
+	// Contain all predecessors
+	/**
+	 * @see calculPred
+	 */
+	private Map<Integer, HashMap<Integer,Integer>> predecessors;
+	
+	static final float infty = 10000f;
 	
 	public Graph(boolean oriented)
 	{
 		this.verPos = new HashMap<>();
-		this.edges = new HashMap<Integer, HashMap<Integer,Float>>();
+		this.edges = new HashMap<>();
 		this.oriented = oriented;
+		Edge.initialize();
+		this.predecessors = null;
 	}
 	
 	public Graph()
@@ -53,6 +68,7 @@ public class Graph
 	{
 		return this.existsVer(k) && this.existsVer(l);
 	}
+	
 	public int[] getPosVer(int k)
 	{
 		if (existsVer(k))
@@ -92,12 +108,13 @@ public class Graph
 	 * 
 	 * @param i
 	 * @param j
-	 * @param val
+	 * @param edge
 	 * @param symetrical 0 : nothing ; 1 : symmetrical ; -1 : anti-symmetrical 
 	 * @since 0.20.2
 	 * @author Atero
 	 */
-	public void addEdge(int i, int j, float val, int symmetrical)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void addEdge(int i, int j, Edge edge, int symmetrical)
 	{
 		if(!existsVer(i,j))
 		{
@@ -110,15 +127,15 @@ public class Graph
 		
 		if(hasNeighbour(i))
 		{
-			Map data = (Map) this.edges.get(i);
-			data.put(j, val);
+			HashMap data = this.edges.get(i);
+			data.put(j, edge);
 			edges.put(i, data);
 		}
 		
 		else
 		{
 			HashMap m = new HashMap<Integer, Float>();
-			m.put(j, val);
+			m.put(j, edge);
 			this.edges.put(i, m);
 		}
 		
@@ -126,7 +143,7 @@ public class Graph
 		switch(symmetrical)
 		{
 		case 1:
-			this.addEdge(j, i, val,0);
+			this.addEdge(j, i, edge.reverse(),0);
 		break;
 		case -1:
 			this.rmEdge(j,i);
@@ -134,9 +151,9 @@ public class Graph
 		}
 	}
 	
-	public void addEdge(int i, int j, float val)
+	public void addEdge(int i, int j, Edge edge)
 	{
-		this.addEdge(i,j,val,0);
+		this.addEdge(i,j,edge,0);
 	}
 	
 	/**
@@ -147,11 +164,13 @@ public class Graph
 	 * @author Atero
 	 * @since 0.20.2
 	 */
+	@SuppressWarnings("unchecked")
 	public void rmEdge(int i, int j)
 	{
 		if(hasNeighbour(i))
 		{
-			Map data = (Map) this.edges.get(i);
+			@SuppressWarnings("rawtypes")
+			HashMap data = this.edges.get(i);
 			data.remove(j);
 			if(data.size() == 0)
 				edges.remove(i);
@@ -184,9 +203,71 @@ public class Graph
 	{
 		if(this.edges.containsKey(i))
 		{
+			@SuppressWarnings("rawtypes")
 			Map data = (Map) this.edges.get(i);
 			return data.size() > 0;
 		}
 			return false;
+	}
+	
+	/**
+	 * Determine all the predecessors for the shortest way from any point to another.
+	 * @version 0.0.1
+	 * @since 0.20.2
+	 * @author Atero
+	 */
+	public void calculPred()
+	{
+		this.predecessors = new HashMap<>();
+		for (Integer i : verPos.keySet())
+			predecessors.put(i, Dijkstra(i));
+		
+	}
+	
+	/**
+	 * 
+	 * @param i the number of the vertex
+	 * @return All the predecessors for having the shortest way from i to another vertex
+	 * @version 0.0.1
+	 * @since 0.20.2
+	 * @author Atero
+	 * @see calculPred
+	 */
+	public HashMap<Integer,Integer> Dijkstra(int i)
+	{
+		if(!existsVer(i))
+			return null;
+		
+		HashMap<Integer,Float> distances = new HashMap<>();
+		HashMap<Integer,Integer> predess = new HashMap<>();
+		Set<Integer> M = verPos.keySet();
+		
+		for(Integer k : M)
+		{
+			distances.put(k, infty);
+			predess.put(k,k);
+		}
+		distances.put(i, 0f);
+		
+		while(!M.isEmpty())
+		{
+			int iMin = -1;
+			for(Integer k : M)
+			{
+				if (iMin == -1 || distances.get(k) < distances.get(iMin))
+					iMin = k;
+			}
+			M.remove(iMin);
+			for(Integer k : edges.get(iMin).keySet())
+			{
+				if (distances.get(iMin) + edges.get(iMin).get(k).val < distances.get(k))
+				{
+					distances.put(k, distances.get(iMin) + edges.get(iMin).get(k).val);
+					predess.put(k,iMin);
+				}
+			}
+		}
+		
+		return predess;
 	}
 }
