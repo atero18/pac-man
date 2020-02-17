@@ -37,7 +37,7 @@ public class Graph
 	
 	/**
 	 * 
-	 * @param k number of the considered vertice
+	 * @param k number of the considered vertex
 	 * @return the [x,y] array;
 	 * @version 0.0.1
 	 * @author Atero
@@ -63,7 +63,7 @@ public class Graph
 	}
 	
 	/**
-	 * Add a new vertices if it doens't already exist and if the coordinates ain't already taken
+	 * Add a new vertex if it doens't already exist and if the coordinates ain't already taken
 	 * 
 	 * @param k number of the new vertices
 	 * @param x x-position of the vertices
@@ -141,8 +141,8 @@ public class Graph
 	
 	/**
 	 * Remove the edge from i to j (and j to i if this graph is non-oriented)
-	 * @param i vertices 1
-	 * @param j vertices 2
+	 * @param i vertex 1
+	 * @param j vertex 2
 	 * @version 0.0.1
 	 * @author Atero
 	 * @since 0.20.2
