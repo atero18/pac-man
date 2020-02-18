@@ -9,6 +9,31 @@ import java.util.*;
  */
 public class Edge {
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + dir;
+		result = prime * result + Float.floatToIntBits(val);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Edge other = (Edge) obj;
+		if (dir != other.dir)
+			return false;
+		if (Float.floatToIntBits(val) != Float.floatToIntBits(other.val))
+			return false;
+		return true;
+	}
+
 	public float getVal() {
 		return val;
 	}

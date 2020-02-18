@@ -7,6 +7,7 @@ import java.util.*;
  * @version 0.0.1
  * @since 0.20.2
  */
+
 public class Graph
 {
 	// This is a 1-graph.
@@ -55,7 +56,6 @@ public class Graph
 	 * Check if a vertex exists
 	 * @param k number of the considered vertex
 	 */
-	
 	public boolean existsVer(int k)
 	{
 		return verPos.containsKey(k);
@@ -260,7 +260,7 @@ public class Graph
 	 * @param to your goal
 	 * @return string composed of the directions have to be taken.
 	 */
-	public String goTo(int from, int to) throws ModelException
+	public ArrayDeque<Character> goTo(int from, int to) throws ModelException
 	{
 		if(!existsVer(from,to))
 			throw new ModelException("Those vertices don't exist");
@@ -268,16 +268,56 @@ public class Graph
 		if (predecessors == null)
 			calculPred();
 		
-		String way = "";
+		ArrayDeque<Character> way = new ArrayDeque<>();
 		
 		int k = to;
 		int pred;
 		while(k != from)
 		{
 			pred = predecessors.get(from).get(k);
-			way =  edges.get(pred).get(k).dir + way;
+			way.addFirst(edges.get(pred).get(k).dir);
 			k = pred;
 		}
 		return way;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edges == null) ? 0 : edges.hashCode());
+		result = prime * result + (oriented ? 1231 : 1237);
+		result = prime * result + ((predecessors == null) ? 0 : predecessors.hashCode());
+		result = prime * result + ((verPos == null) ? 0 : verPos.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Graph other = (Graph) obj;
+		if (edges == null) {
+			if (other.edges != null)
+				return false;
+		} else if (!edges.equals(other.edges))
+			return false;
+		if (oriented != other.oriented)
+			return false;
+		if (predecessors == null) {
+			if (other.predecessors != null)
+				return false;
+		} else if (!predecessors.equals(other.predecessors))
+			return false;
+		if (verPos == null) {
+			if (other.verPos != null)
+				return false;
+		} else if (!verPos.equals(other.verPos))
+			return false;
+		return true;
 	}
 }
