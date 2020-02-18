@@ -3,16 +3,33 @@ import java.util.*;
 
 /**
  * @author Atero
+ * @author Aleam
  * @version 0.0.1
  * @since 0.20.2
  */
 public class Edge {
 	
+	public float getVal() {
+		return val;
+	}
+
+	public void setVal(float val) {
+		this.val = val;
+	}
+
+	public char getDir() {
+		return dir;
+	}
+
+	public void setDir(char dir) {
+		this.dir = dir;
+	}
+
 	float val;
 	char dir;
 	
-	private static HashSet<Character> directions;
-	private static HashMap<Character, Character> opposites;
+	private static Set<Character> directions;
+	private static Map<Character, Character> opposites;
 	
 	
 	
@@ -33,6 +50,9 @@ public class Edge {
 	 */
 	public static void initialize()
 	{
+		directions = new HashSet<Character>();
+		opposites = new HashMap<Character, Character>();
+		
 		directions.add('U');
 		directions.add('D');
 		directions.add('L');
