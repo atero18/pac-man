@@ -1,6 +1,11 @@
 package bin.Model;
 import java.util.*;
 
+/**
+ * @author Atero
+ * @version 0.0.1
+ * @since 0.20.2
+ */
 public class Edge {
 	
 	float val;
@@ -11,62 +16,42 @@ public class Edge {
 	
 	
 	
-	public Edge(float val, char dir) throws Exception
+	public Edge(float val, char dir) throws ModelException
 	{
 		this.val = val;
 		if(directions.contains(dir))
 			this.dir = dir;
 		
 		else
-			throw new Exception("incorrect direction indicated");
+			throw new ModelException("incorrect direction indicated");
 		
 	}
 	
 	/**
 	 * Initialize the static Collections (Map, Set)
 	 * Initialized in Graph
-	 * @since 0.20.2
-	 * @version 0.0.1
-	 * @author Atero
 	 */
 	public static void initialize()
 	{
-		// Condition could be improved
-		if(directions == null || directions.size() == 0)
-		{
-			directions.add('U');
-			directions.add('D');
-			directions.add('L');
-			directions.add('R');
-		}
-		if(opposites == null || opposites.size() == 0)
-		{
-			opposites.put('U','D');
-			opposites.put('D','U');
-			opposites.put('L', 'R');
-			opposites.put('R', 'L');
-		}
+		directions.add('U');
+		directions.add('D');
+		directions.add('L');
+		directions.add('R');
+	
+		opposites.put('U','D');
+		opposites.put('D','U');
+		opposites.put('L', 'R');
+		opposites.put('R', 'L');
+	
 	}
 	
 	/**
-	 * 
+	 * Give a new edge with same value, opposite direction
 	 * @return same edge but with opposite direction
-	 * @version 0.0.1
-	 * @since 0.20.2
-	 * @author Atero
 	 */
-	public Edge reverse()
+	public Edge reverse() throws ModelException
 	{
-		try
-		{
-			return new Edge(this.val, opposites.get(this.dir));
-		}
-		
-		catch(Exception e)
-		{
-			System.exit(-1);
-			return null;
-		}
+		return new Edge(this.val, opposites.get(this.dir));
 	}
 
 }

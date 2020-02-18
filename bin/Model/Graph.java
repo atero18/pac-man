@@ -2,6 +2,11 @@ package bin.Model;
 import java.util.*;
 
 
+/**
+ * @author Atero
+ * @version 0.0.1
+ * @since 0.20.2
+ */
 public class Graph
 {
 	// This is a 1-graph.
@@ -9,7 +14,6 @@ public class Graph
 	
 	// Contains all the vertices and their positions
 	private Map<Integer,Point> verPos;
-	@SuppressWarnings("rawtypes")
 	
 	// Contain all the edges (keys : the first vertices. Data : all the goals vertices and value of the edge
 	private Map<Integer, HashMap<Integer,Edge>> edges;
@@ -39,40 +43,36 @@ public class Graph
 	
 	
 	/**
-	 * 
+	 * Get number of vertices
 	 * @return the number of vertices
-	 * @version 0.0.1
-	 * @author Atero
-	 * @since 0.20.2
 	 */
 	public int nbVer()
 	{
-		return this.verPos.size();
+		return verPos.size();
 	}
 	
 	/**
-	 * 
+	 * Check if a vertex exists
 	 * @param k number of the considered vertex
-	 * @return the [x,y] array;
-	 * @version 0.0.1
-	 * @author Atero
-	 * @since 0.20.2
 	 */
 	
 	public boolean existsVer(int k)
 	{
-		return this.verPos.containsKey(k);
+		return verPos.containsKey(k);
 	}
 	
+	/**
+	 * Check if the two vertices exist
+	 */
 	public boolean existsVer(int k,int l)
 	{
-		return this.existsVer(k) && this.existsVer(l);
+		return existsVer(k) && existsVer(l);
 	}
 	
 	public int[] getPosVer(int k)
 	{
 		if (existsVer(k))
-			return ((Point) this.verPos.get(k)).getCoord();
+			return ((Point) verPos.get(k)).getCoord();
 		
 		else
 			return null;
@@ -80,21 +80,16 @@ public class Graph
 	
 	/**
 	 * Add a new vertex if it doens't already exist and if the coordinates ain't already taken
-	 * 
 	 * @param k number of the new vertices
 	 * @param x x-position of the vertices
 	 * @param y y-position of the vertices
-	 * @version 0.0.1
-	 * @author Atero
-	 * @since 0.20.2
-	 * 
 	 */
 	public void addVer(int k, int x, int y)
 	{
 		if (!existsVer(k))
 		{
 			Point newPoint = new Point(x,y);
-			for(Point p : this.verPos.values())
+			for(Point p : verPos.values())
 			{
 				if (newPoint.equals(p))
 					return;
@@ -105,21 +100,15 @@ public class Graph
 	}
 	
 	/**
-	 * 
-	 * @param i
-	 * @param j
-	 * @param edge
+	 * Add new edge to the graph (with symmetrical parameter)
 	 * @param symetrical 0 : nothing ; 1 : symmetrical ; -1 : anti-symmetrical 
-	 * @since 0.20.2
-	 * @author Atero
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void addEdge(int i, int j, Edge edge, int symmetrical)
+	public void addEdge(int i, int j, Edge edge, int symmetrical) throws ModelException
 	{
 		if(!existsVer(i,j))
 		{
-			System.out.println("Error : one of the vertices doesn't exist");
-			return;
+			throw new ModelException("At least one of the vertices doesn't exist");
 		}
 		
 		if(!this.oriented)
@@ -127,7 +116,7 @@ public class Graph
 		
 		if(hasNeighbour(i))
 		{
-			HashMap data = this.edges.get(i);
+			HashMap data = edges.get(i);
 			data.put(j, edge);
 			edges.put(i, data);
 		}
@@ -136,22 +125,25 @@ public class Graph
 		{
 			HashMap m = new HashMap<Integer, Float>();
 			m.put(j, edge);
-			this.edges.put(i, m);
+			edges.put(i, m);
 		}
 		
 
 		switch(symmetrical)
 		{
 		case 1:
-			this.addEdge(j, i, edge.reverse(),0);
+			addEdge(j, i, edge.reverse(),0);
 		break;
 		case -1:
-			this.rmEdge(j,i);
+			rmEdge(j,i);
 		break;
 		}
 	}
 	
-	public void addEdge(int i, int j, Edge edge)
+	/**
+	 * Add new edge to the graph
+	 */
+	public void addEdge(int i, int j, Edge edge) throws ModelException
 	{
 		this.addEdge(i,j,edge,0);
 	}
@@ -160,9 +152,6 @@ public class Graph
 	 * Remove the edge from i to j (and j to i if this graph is non-oriented)
 	 * @param i vertex 1
 	 * @param j vertex 2
-	 * @version 0.0.1
-	 * @author Atero
-	 * @since 0.20.2
 	 */
 	@SuppressWarnings("unchecked")
 	public void rmEdge(int i, int j)
@@ -170,7 +159,7 @@ public class Graph
 		if(hasNeighbour(i))
 		{
 			@SuppressWarnings("rawtypes")
-			HashMap data = this.edges.get(i);
+			HashMap data = edges.get(i);
 			data.remove(j);
 			if(data.size() == 0)
 				edges.remove(i);
@@ -183,6 +172,10 @@ public class Graph
 			rmEdge(j,i);
 	}
 	
+	/**
+	 * Remove the edge from i to j with bothWays parameter (and j to i if this graph is non-oriented)
+	 * @param bothWays if true, j-i edge is also removed
+	 */
 	public void rmEdge(int i, int j, boolean bothWays)
 	{
 		//bothways automatically true for a non-oriented graph
@@ -192,19 +185,16 @@ public class Graph
 	}
 	
 	/**
-	 * 
-	 * @param i number of the vertices
-	 * @return true if i has any neighbour (considered in an oriented way)
-	 * @version 0.0.1
-	 * @author Atero
-	 * @since 0.20.2
+	 * Check if a vertex has some neighbor
+	 * @param i number of the vertex
+	 * @return true if i has any neighbor (considered in an oriented way)
 	 */
 	public boolean hasNeighbour(int i)
 	{
 		if(this.edges.containsKey(i))
 		{
 			@SuppressWarnings("rawtypes")
-			Map data = (Map) this.edges.get(i);
+			Map data = (Map) edges.get(i);
 			return data.size() > 0;
 		}
 			return false;
@@ -212,11 +202,8 @@ public class Graph
 	
 	/**
 	 * Determine all the predecessors for the shortest way from any point to another.
-	 * @version 0.0.1
-	 * @since 0.20.2
-	 * @author Atero
 	 */
-	public void calculPred()
+	private void calculPred() throws ModelException
 	{
 		this.predecessors = new HashMap<>();
 		for (Integer i : verPos.keySet())
@@ -225,18 +212,14 @@ public class Graph
 	}
 	
 	/**
-	 * 
 	 * @param i the number of the vertex
 	 * @return All the predecessors for having the shortest way from i to another vertex
-	 * @version 0.0.1
-	 * @since 0.20.2
-	 * @author Atero
 	 * @see calculPred
 	 */
-	public HashMap<Integer,Integer> Dijkstra(int i)
+	private HashMap<Integer,Integer> Dijkstra(int i) throws ModelException
 	{
 		if(!existsVer(i))
-			return null;
+			throw new ModelException("This vertex doesn't exist");
 		
 		HashMap<Integer,Float> distances = new HashMap<>();
 		HashMap<Integer,Integer> predess = new HashMap<>();
@@ -269,5 +252,32 @@ public class Graph
 		}
 		
 		return predess;
+	}
+	
+	/**
+	 * Give a String with U-D-L-R composed of the shortest way between two vertices
+	 * @param from your start
+	 * @param to your goal
+	 * @return string composed of the directions have to be taken.
+	 */
+	public String goTo(int from, int to) throws ModelException
+	{
+		if(!existsVer(from,to))
+			throw new ModelException("Those vertices don't exist");
+		
+		if (predecessors == null)
+			calculPred();
+		
+		String way = "";
+		
+		int k = to;
+		int pred;
+		while(k != from)
+		{
+			pred = predecessors.get(from).get(k);
+			way =  edges.get(pred).get(k).dir + way;
+			k = pred;
+		}
+		return way;
 	}
 }
