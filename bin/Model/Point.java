@@ -36,4 +36,12 @@ public class Point
 		}	
 		return false;
 	}
+	
+	/**
+	 * @override
+	 */
+	public String toString()
+	{
+		return "(" + x + "," + y + ")";
+	}
 }

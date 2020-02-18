@@ -33,7 +33,8 @@ class EdgeTest {
 	
 	@Test
 	void testConstructExcp() {
-		assertThrows(ModelException.class, () -> {Edge e1 = new Edge(4.2f, 'E');});
+		assertThrows(ModelException.class, () -> {@SuppressWarnings("unused")
+		Edge e1 = new Edge(4.2f, 'E');});
 	}
 	
 	@Test

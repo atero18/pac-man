@@ -98,5 +98,10 @@ public class Edge {
 	{
 		return new Edge(this.val, opposites.get(this.dir));
 	}
+	
+	public String toString()
+	{
+		return "(" + val + "," + dir + ")";
+	}
 
 }
