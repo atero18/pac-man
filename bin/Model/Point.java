@@ -1,9 +1,11 @@
-/**
- * 
- */
 package bin.Model;
 
 
+/**
+ * @author Atero
+ * @version 0.0.1
+ * @since 0.20.2
+ */
 public class Point
 {
 	int x,y;
@@ -20,20 +22,9 @@ public class Point
 		return t;
 	}
 	
-	public int x()
-	{
-		return this.x;
-	}
-	
-	public int y()
-	{
-		return this.y;
-	}
 	
 	/**
 	 * @return true if both points have same coordinates
-	 * @version 0.0.1
-	 * @author Atero
 	 * @override
 	 */
 	public boolean equals(Object o)
