@@ -1,0 +1,6 @@
+empty_bloc=0
+wall_bloc=1
+pacman_start=2
+ghost_zone=3
+big_point=4
+teleport_bloc=5
