@@ -7,13 +7,25 @@ import java.util.*;
  * @version 0.0.1
  * @since 0.20.2
  */
+
 public class Graph
 {
 	// This is a 1-graph.
 	// perhaps remove the "private" states
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edges == null) ? 0 : edges.hashCode());
+		result = prime * result + (oriented ? 1231 : 1237);
+		result = prime * result + ((predecessors == null) ? 0 : predecessors.hashCode());
+		result = prime * result + ((verPos == null) ? 0 : verPos.hashCode());
+		return result;
+	}
+	
 	// Contains all the vertices and their positions
-	private Map<Integer,Point> verPos;
+	private HashMap<Integer,Point> verPos;
 	
 	// Contain all the edges (keys : the first vertices. Data : all the goals vertices and value of the edge
 	private Map<Integer, HashMap<Integer,Edge>> edges;
@@ -55,7 +67,6 @@ public class Graph
 	 * Check if a vertex exists
 	 * @param k number of the considered vertex
 	 */
-	
 	public boolean existsVer(int k)
 	{
 		return verPos.containsKey(k);
@@ -111,24 +122,31 @@ public class Graph
 			throw new ModelException("At least one of the vertices doesn't exist");
 		}
 		
-		if(!this.oriented)
+		
+		if(!this.oriented && (!edges.containsKey(j) || !edges.get(j).containsKey(i)))
 			symmetrical = 1;
+		
+		
 		
 		if(hasNeighbour(i))
 		{
-			HashMap data = edges.get(i);
+			
+			HashMap data = (HashMap) edges.get(i).clone();
+			edges.remove(i);
 			data.put(j, edge);
 			edges.put(i, data);
 		}
 		
+		
 		else
 		{
+			
 			HashMap m = new HashMap<Integer, Float>();
 			m.put(j, edge);
 			edges.put(i, m);
 		}
 		
-
+		
 		switch(symmetrical)
 		{
 		case 1:
@@ -203,12 +221,11 @@ public class Graph
 	/**
 	 * Determine all the predecessors for the shortest way from any point to another.
 	 */
-	private void calculPred() throws ModelException
+	public void calculPred() throws ModelException
 	{
 		this.predecessors = new HashMap<>();
-		for (Integer i : verPos.keySet())
+		for (Integer i : verPos.keySet())			
 			predecessors.put(i, Dijkstra(i));
-		
 	}
 	
 	/**
@@ -223,7 +240,9 @@ public class Graph
 		
 		HashMap<Integer,Float> distances = new HashMap<>();
 		HashMap<Integer,Integer> predess = new HashMap<>();
-		Set<Integer> M = verPos.keySet();
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		Set<Integer> M = ((HashMap) verPos.clone()).keySet();
+		
 		
 		for(Integer k : M)
 		{
@@ -234,6 +253,7 @@ public class Graph
 		
 		while(!M.isEmpty())
 		{
+			
 			int iMin = -1;
 			for(Integer k : M)
 			{
@@ -250,17 +270,16 @@ public class Graph
 				}
 			}
 		}
-		
 		return predess;
 	}
 	
 	/**
-	 * Give a String with U-D-L-R composed of the shortest way between two vertices
+	 * Give a Queue with U-D-L-R composed of the shortest way between two vertices
 	 * @param from your start
 	 * @param to your goal
-	 * @return string composed of the directions have to be taken.
+	 * @return Queue composed of the directions have to be taken.
 	 */
-	public String goTo(int from, int to) throws ModelException
+	public ArrayDeque<Character> goTo(int from, int to) throws ModelException
 	{
 		if(!existsVer(from,to))
 			throw new ModelException("Those vertices don't exist");
@@ -268,16 +287,153 @@ public class Graph
 		if (predecessors == null)
 			calculPred();
 		
-		String way = "";
+		ArrayDeque<Character> way = new ArrayDeque<>();
 		
 		int k = to;
 		int pred;
 		while(k != from)
 		{
 			pred = predecessors.get(from).get(k);
-			way =  edges.get(pred).get(k).dir + way;
+			way.addFirst(edges.get(pred).get(k).dir);
 			k = pred;
 		}
 		return way;
 	}
+	
+	/**
+	 * Transform the matrix-maze in a graph
+	 * @param Mat The input matrix-maze
+	 * @param codeMat The code use to translate the matrix
+	 * @return the new Graph
+	 * @throws ModelException
+	 */
+	public static Graph matToGraph(int[][] Mat, Map<String,Integer> codeMat) throws ModelException
+	{
+		
+		
+		// For later : Add a vertex at the ghost regeneration point.
+		Graph g = new Graph();
+		HashSet<Integer> notaway = new HashSet<>();
+		notaway.add(codeMat.get("wall_bloc"));
+		notaway.add(codeMat.get("invisible_bloc"));
+		notaway.add(codeMat.get("ghost_zone"));
+		
+
+		int nrows = Mat.length;
+		int ncols = Mat[0].length;
+		
+		int k = 1;
+		
+		for(int i = 0; i < nrows; i++)
+		{
+			// Used for create edges.
+			boolean sameLineCo = false; // Sameline and connected (no walls between)
+			int previousJ = 0;
+			
+			for(int j = 0; j < ncols; j++)
+			{
+				if(!notaway.contains(Mat[i][j]))
+				{
+					
+					// If it exists the equivalent of a 'corner', then it's a vertex
+					if(((j > 0 && !notaway.contains(Mat[i][j-1])) || (j + 1 < ncols && !notaway.contains(Mat[i][j+1])))
+							&& ((i > 0 && !notaway.contains(Mat[i-1][j])) || (i + 1 < nrows && !notaway.contains(Mat[i+1][j]))))
+					{
+						
+						g.addVer(k, i, j);
+						/* If the previous vertex is on the same row, 
+						 * then we create an edge between the previous and the new
+						 */
+						if(sameLineCo)
+						{
+							g.addEdge(k-1, k, new Edge((float) j - previousJ, 'R'));
+							
+						}
+						sameLineCo = true;
+						previousJ = j;
+						k++;
+					}
+				}
+				// In the other case, it means there is a wall between previous and next vertex
+				else
+					sameLineCo = false;
+			}
+		}
+		
+		k = k-1;
+		// Now we link them if they are close and on the same column
+		for(; k >= 2; k--)
+		{
+			int col = g.verPos.get(k).y;
+			for(int p = k - 1; p >= 1; p--)
+			{
+				if(g.verPos.get(p).y == col)
+				{
+					boolean noWalls = true;
+					int i = g.verPos.get(p).x + 1;
+					while(i < g.verPos.get(k).x && noWalls)
+					{
+						if(notaway.contains(Mat[i][col]))
+							noWalls = false;
+						i++;
+					}
+					if(noWalls)
+					{
+						g.addEdge(p, k, new Edge((float) g.verPos.get(k).x - g.verPos.get(p).x, 'D'));
+						break;
+					}
+				}
+			}
+		}
+		
+		g.calculPred();
+		return g;
+	}
+	
+	
+	public void disp()
+	{
+		System.out.println("List of all the vertices with its edge(s)");
+		for(Integer i : verPos.keySet())
+		{
+			System.out.print("\n" + i + " " + verPos.get(i) + " : ");
+			for(Integer j : edges.get(i).keySet())
+			{
+				System.out.print(j + " " + edges.get(i).get(j) + "| ");
+			}
+		}
+	}
+	
+	public static void main (String[] args)
+	{
+		int[][] Mat = {
+				{1,1,1,1,1,1,1},
+				{1,0,0,0,0,0,1},
+				{1,0,1,0,1,0,1},
+				{1,0,1,0,1,0,1},
+				{1,0,0,0,0,0,1},
+				{1,0,0,1,0,0,1},
+				{1,0,0,0,0,0,1},
+				{1,1,1,1,1,1,1}
+				};
+		
+		HashMap<String,Integer> codeMap = new HashMap<>();
+		codeMap.put("wall_bloc", 1);
+		codeMap.put("ghost_zone", 3);
+		codeMap.put("invisible_bloc", 6);
+		
+		try
+		{
+			Graph g = matToGraph(Mat,codeMap);
+			g.disp();
+			System.out.println(g.goTo(8, 1));
+			
+		}
+		catch(Exception e)
+		{
+			System.exit(1);
+		}
+	}
+	
+	
 }

@@ -33,9 +33,15 @@ public class Point
 		{
 			Point p = (Point) o;
 			return this.x == p.x && this.y == p.y; 
-		}
-		
+		}	
 		return false;
 	}
-
+	
+	/**
+	 * @override
+	 */
+	public String toString()
+	{
+		return "(" + x + "," + y + ")";
+	}
 }
