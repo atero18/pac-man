@@ -329,6 +329,8 @@ public class Graph
 			// Used for create edges.
 			boolean sameLineCo = false; // Sameline and connected (no walls between)
 			int previousJ = 0;
+			boolean test = false;
+			
 			
 			for(int j = 0; j < ncols; j++)
 			{
@@ -338,8 +340,32 @@ public class Graph
 					// If it exists the equivalent of a 'corner', then it's a vertex
 					if(((j > 0 && !notaway.contains(Mat[i][j-1])) || (j + 1 < ncols && !notaway.contains(Mat[i][j+1])))
 							&& ((i > 0 && !notaway.contains(Mat[i-1][j])) || (i + 1 < nrows && !notaway.contains(Mat[i+1][j]))))
+							test = true;
+					
+					
+					// Or if there is an "IMPASSE" (if the bloc is surrounded by exactly 3 blocs
+					if(!test)
 					{
+						int sides = 0;
+						if((j > 0 && notaway.contains(Mat[i][j-1])))
+							sides++;
 						
+						if(j + 1 < ncols && notaway.contains(Mat[i][j+1]))
+							sides++;
+						
+						if(i > 0 && notaway.contains(Mat[i-1][j]))
+							sides++;
+						
+						if(i + 1 < nrows && notaway.contains(Mat[i+1][j]))
+							sides++;
+						
+						if(sides == 3)
+							test = true;
+					}
+					
+					if(test)
+					{
+						test = false;
 						g.addVer(k, i, j);
 						/* If the previous vertex is on the same row, 
 						 * then we create an edge between the previous and the new
