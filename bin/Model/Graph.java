@@ -44,7 +44,6 @@ public class Graph
 		this.verPos = new HashMap<>();
 		this.edges = new HashMap<>();
 		this.oriented = oriented;
-		Edge.initialize();
 		this.predecessors = null;
 		
 	}
@@ -421,7 +420,7 @@ public class Graph
 	
 	public void disp()
 	{
-		System.out.println("List of all the vertices with its edge(s)");
+		System.out.println("List of all the vertices with their edge(s)");
 		for(Integer i : verPos.keySet())
 		{
 			System.out.print("\n" + i + " " + verPos.get(i) + " : ");
@@ -431,41 +430,5 @@ public class Graph
 			}
 		}
 	}
-	
-	public static void main (String[] args)
-	{
-		int[][] Mat = {
-				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-				{1,4,0,0,1,0,0,0,0,0,0,0,0,1,0,0,4,1},
-				{1,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,1},
-				{1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1},
-				{1,0,0,1,0,0,0,3,3,3,3,0,0,0,1,0,0,1},
-				{1,1,0,1,1,0,3,3,3,3,3,3,0,1,1,0,1,1},
-				{0,2,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0,0},
-				{1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,1},
-				{1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1,1},
-				{1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1},
-				{1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1},
-				{1,4,0,0,1,1,0,0,0,0,0,0,1,1,0,0,4,1},
-				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
-		
-		HashMap<String,Integer> codeMap = new HashMap<>();
-		codeMap.put("wall_bloc", 1);
-		codeMap.put("ghost_zone", 3);
-		codeMap.put("invisible_bloc", 6);
-		
-		try
-		{
-			Graph g = matToGraph(Mat,codeMap);
-			g.disp();
-			System.out.println(g.goTo(8, 1));
-			
-		}
-		catch(Exception e)
-		{
-			System.exit(1);
-		}
-	}
-	
 	
 }
