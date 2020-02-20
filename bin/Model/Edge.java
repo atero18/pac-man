@@ -53,14 +53,17 @@ public class Edge {
 	float val;
 	char dir;
 	
-	private static Set<Character> directions;
-	private static Map<Character, Character> opposites;
+	private static Set<Character> directions = null;
+	private static Map<Character, Character> opposites = null;
 	
 	
 	
 	public Edge(float val, char dir) throws ModelException
 	{
 		this.val = val;
+		if(directions == null || opposites == null)
+			initialize();
+		
 		if(directions.contains(dir))
 			this.dir = dir;
 		
@@ -71,7 +74,6 @@ public class Edge {
 	
 	/**
 	 * Initialize the static Collections (Map, Set)
-	 * Initialized in Graph
 	 */
 	public static void initialize()
 	{
