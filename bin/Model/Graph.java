@@ -35,7 +35,7 @@ public class Graph
 	/**
 	 * @see calculPred
 	 */
-	private Map<Integer, HashMap<Integer,Integer>> predecessors;
+	private Map<Integer, Map<Integer,Integer>> predecessors;
 	
 	static final float infty = 10000f;
 	
@@ -46,6 +46,7 @@ public class Graph
 		this.oriented = oriented;
 		Edge.initialize();
 		this.predecessors = null;
+		
 	}
 	
 	public Graph()
@@ -233,7 +234,7 @@ public class Graph
 	 * @return All the predecessors for having the shortest way from i to another vertex
 	 * @see calculPred
 	 */
-	private HashMap<Integer,Integer> Dijkstra(int i) throws ModelException
+	private Map<Integer,Integer> Dijkstra(int i) throws ModelException
 	{
 		if(!existsVer(i))
 			throw new ModelException("This vertex doesn't exist");
@@ -312,6 +313,7 @@ public class Graph
 		
 		
 		// For later : Add a vertex at the ghost regeneration point.
+		// And on teleportations.
 		Graph g = new Graph();
 		HashSet<Integer> notaway = new HashSet<>();
 		notaway.add(codeMat.get("wall_bloc"));
@@ -433,15 +435,19 @@ public class Graph
 	public static void main (String[] args)
 	{
 		int[][] Mat = {
-				{1,1,1,1,1,1,1},
-				{1,0,0,0,0,0,1},
-				{1,0,1,0,1,0,1},
-				{1,0,1,0,1,0,1},
-				{1,0,0,0,0,0,1},
-				{1,0,0,1,0,0,1},
-				{1,0,0,0,0,0,1},
-				{1,1,1,1,1,1,1}
-				};
+				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+				{1,4,0,0,1,0,0,0,0,0,0,0,0,1,0,0,4,1},
+				{1,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,1},
+				{1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1},
+				{1,0,0,1,0,0,0,3,3,3,3,0,0,0,1,0,0,1},
+				{1,1,0,1,1,0,3,3,3,3,3,3,0,1,1,0,1,1},
+				{0,2,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0,0},
+				{1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,1},
+				{1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1,1},
+				{1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1},
+				{1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1},
+				{1,4,0,0,1,1,0,0,0,0,0,0,1,1,0,0,4,1},
+				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
 		
 		HashMap<String,Integer> codeMap = new HashMap<>();
 		codeMap.put("wall_bloc", 1);
