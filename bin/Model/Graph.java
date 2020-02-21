@@ -315,10 +315,7 @@ public class Graph
 		// And on teleportations.
 		Graph g = new Graph();
 		HashSet<Integer> notaway = new HashSet<>();
-		notaway.add(codeMat.get("wall_bloc"));
-		notaway.add(codeMat.get("invisible_bloc"));
-		notaway.add(codeMat.get("ghost_zone"));
-		
+		ArrayList<Integer> tpPoints = new ArrayList<>();
 
 		int nrows = Mat.length;
 		int ncols = Mat[0].length;
@@ -363,6 +360,15 @@ public class Graph
 						if(sides == 3)
 							test = true;
 					}
+					
+					
+					//Or if it's a teleportation point
+					if(!test && codeMat.get("teleport_bloc") == Mat[i][j])
+					{
+						test = true;
+						tpPoints.add(k);
+					}
+					
 					
 					if(test)
 					{
@@ -412,6 +418,12 @@ public class Graph
 				}
 			}
 		}
+		
+		
+		//Teleportation points gestion (edges between them)
+		//TODO
+		
+		
 		
 		g.calculPred();
 		return g;
