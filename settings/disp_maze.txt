@@ -1,0 +1,8 @@
+empty_bloc= 
+wall_bloc=X
+pacman_start=S
+ghost_zone=G
+ghost_out=O
+big_point=P
+invisible_bloc=_
+teleport_bloc=T

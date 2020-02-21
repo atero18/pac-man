@@ -20,14 +20,18 @@ import java.util.regex.Matcher;
 public class Maze {
 	
 	private int[][] matrix;
+	int rows, columns;
 	private Graph graph;
 	private static Map<String, Integer> readParam = null;
+	private static Map<Integer, String> typeBlocs = null;
 	
 	//Simple constructor using fields
 	public Maze(int[][] matrix) throws ModelException
 	{
 		this.matrix = matrix;
-		if(readParam == null)
+		this.rows = matrix.length;
+		this.columns = matrix[0].length;
+		if(readParam == null || typeBlocs == null)
 			getParams();
 		graph = Graph.matToGraph(this.matrix, readParam);
 	}
@@ -51,22 +55,22 @@ public class Maze {
 		{
 			Scanner reader = new Scanner(file);
 			//First reading, knowing the dims.
-			int rows = 0;
-			int cols = 0;
+			int matRows = 0;
+			int matCols = 0;
 			String data;
 			while(reader.hasNextLine())
 			{
-				rows++;
+				matRows++;
 				data = reader.nextLine();
-				cols = data.length();
+				matCols = data.length();
 			}
 			reader.close();
 			
 			
-			int[][] Mat = new int[rows][cols];
+			int[][] Mat = new int[matRows][matCols];
 			reader = new Scanner(file);
 			int i = 0;
-			while(reader.hasNextLine() && i < rows)
+			while(reader.hasNextLine() && i < matRows)
 			{
 				data = reader.nextLine();
 				for(int j = 0; j < data.length(); j++)
@@ -94,19 +98,23 @@ public class Maze {
 	public static void getParams() throws ModelException
 	{
 		File file = new File("settings/read_maze.txt");
-		readParam = new HashMap<String,Integer>();
+		readParam = new HashMap<>();
+		typeBlocs = new HashMap<>();
 		
 		try
 		{
 			Scanner reader = new Scanner(file);
-		    Pattern regex = Pattern.compile("(\\w+_?\\w*)=(\\d+)");
+		    Pattern regex = Pattern.compile("([\\w_]*)=(\\d+)");
 		    Matcher m;
 		    System.out.println("Reading maze parameters");
 		    while(reader.hasNextLine())
 		    {
 		    	m = regex.matcher(reader.nextLine());
 		    	if(m.matches())
+		    	{
 		    		readParam.put(m.group(1), Integer.parseInt(m.group(2)));
+		    		typeBlocs.put(Integer.parseInt(m.group(2)), m.group(1));
+		    	}
 		    }
 		    System.out.println("maze parameters ok");
 			reader.close();
@@ -121,15 +129,61 @@ public class Maze {
 		}
 	}
 	
+	/**
+	 * Print on console the matrix
+	 */
 	public void printMat()
 	{
 		System.out.println("\nDimensions of the matrix : " + matrix.length + ", " + matrix[0].length);
-		for(int i = 0; i < matrix.length; i++)
+		for(int i = 0; i < rows; i++)
 		{
 			System.out.print(i  + " : ");
-			for(int j = 0; j < matrix[i].length - 1; j++)
+			for(int j = 0; j < columns - 1; j++)
 				System.out.print(matrix[i][j] + ", ");
-			System.out.print(matrix[i][matrix[i].length - 1] + "\n");
+			System.out.print(matrix[i][columns - 1] + "\n");
+		}
+	}
+	
+	/**
+	 * Print on console the maze
+	 * @see regex
+	 * @throws ModelException
+	 */
+	public void dispMaze() throws ModelException
+	{
+		HashMap<String, String> viz = new HashMap<>();
+		
+		File file = new File("settings/disp_maze.txt");
+		try
+		{
+			Scanner reader = new Scanner(file);
+		    Pattern regex = Pattern.compile("([\\w_]*)=([\\w\\s_])$");
+		    Matcher m;
+		    System.out.println("\nReading disp_maze parameters");
+		    
+		    while(reader.hasNextLine())
+		    {
+		    	m = regex.matcher(reader.nextLine());
+		    	if(m.matches())
+		    		viz.put(m.group(1), m.group(2));
+		    }
+		    System.out.println("disp_maze parameters ok");
+			reader.close();
+			
+			for(int i = 0; i < rows; i++)
+			{	
+				System.out.print("\n");
+				for(int j = 0; j < columns; j++)
+					System.out.print(viz.get(typeBlocs.get(matrix[i][j])));
+			}
+		}
+		catch(FileNotFoundException e)
+		{
+			throw new ModelException("file not found -- loading disp_Maze parameters");
+		}
+		catch(Exception e)
+		{
+			throw new ModelException("Error during opening disp_maze settings file |" + e.getMessage());
 		}
 	}
 	
@@ -137,9 +191,10 @@ public class Maze {
 	{
 		try
 		{
-			Maze maze = new Maze("data/maze/maze_0.txt");
+			Maze maze = new Maze("data/maze/maze_1.txt");
 			maze.printMat();
 			maze.graph.disp();
+			maze.dispMaze();
 		}
 		catch(Exception e)
 		{
