@@ -17,7 +17,7 @@ public class Edge {
 		result = prime * result + Float.floatToIntBits(val);
 		return result;
 	}
-
+	
 	public float getVal() {
 		return val;
 	}

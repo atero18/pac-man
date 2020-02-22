@@ -1,8 +1,8 @@
-empty_bloc=0
-wall_bloc=1
-pacman_start=2
-ghost_zone=3
-ghost_out=4
-big_point=5
-invisible_bloc=6
-teleport_bloc=7
+empty_bloc=0,y
+wall_bloc=1,n
+pacman_start=2,y
+ghost_zone=3,n
+ghost_out=4,n
+big_point=5,y
+invisible_bloc=6,y
+teleport_prefix=99,y

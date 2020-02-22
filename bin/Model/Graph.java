@@ -1,5 +1,7 @@
 package bin.Model;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -307,20 +309,22 @@ public class Graph
 	 * @return the new Graph
 	 * @throws ModelException
 	 */
-	public static Graph matToGraph(int[][] Mat, Map<String,Integer> codeMat) throws ModelException
+	public static Graph matToGraph(int[][] Mat, Map<String,Integer> codeMat, Map<Integer, Boolean> aWay) throws ModelException
 	{
 		
 		
 		// For later : Add a vertex at the ghost regeneration point.
 		// And on teleportations.
 		Graph g = new Graph();
-		HashSet<Integer> notaway = new HashSet<>();
 		ArrayList<Integer> tpPoints = new ArrayList<>();
 
 		int nrows = Mat.length;
 		int ncols = Mat[0].length;
+		int[][] matC = Maze.cloneMat(Mat, true); // Matrix without teleportation informations
 		
 		int k = 1;
+		
+		
 		
 		for(int i = 0; i < nrows; i++)
 		{
@@ -329,15 +333,17 @@ public class Graph
 			int previousJ = 0;
 			boolean test = false;
 			
-			
 			for(int j = 0; j < ncols; j++)
 			{
-				if(!notaway.contains(Mat[i][j]))
+				if(aWay.get(matC[i][j]) == null)
+					throw new ModelException("matToGraph : Unknown value at (" + i + "," + j + ") position");
+				
+				if(aWay.get(matC[i][j]))
 				{
 					
 					// If it exists the equivalent of a 'corner', then it's a vertex
-					if(((j > 0 && !notaway.contains(Mat[i][j-1])) || (j + 1 < ncols && !notaway.contains(Mat[i][j+1])))
-							&& ((i > 0 && !notaway.contains(Mat[i-1][j])) || (i + 1 < nrows && !notaway.contains(Mat[i+1][j]))))
+					if(((j > 0 && aWay.get(matC[i][j-1])) || (j + 1 < ncols && aWay.get(matC[i][j+1])))
+							&& ((i > 0 && aWay.get(matC[i-1][j])) || (i + 1 < nrows && aWay.get(matC[i+1][j]))))
 							test = true;
 					
 					
@@ -345,16 +351,16 @@ public class Graph
 					if(!test)
 					{
 						int sides = 0;
-						if((j > 0 && notaway.contains(Mat[i][j-1])))
+						if((j > 0 && !aWay.get(matC[i][j-1])))
 							sides++;
 						
-						if(j + 1 < ncols && notaway.contains(Mat[i][j+1]))
+						if(j + 1 < ncols && !aWay.get(matC[i][j+1]))
 							sides++;
 						
-						if(i > 0 && notaway.contains(Mat[i-1][j]))
+						if(i > 0 && !aWay.get(matC[i-1][j]))
 							sides++;
 						
-						if(i + 1 < nrows && notaway.contains(Mat[i+1][j]))
+						if(i + 1 < nrows && !aWay.get(matC[i+1][j]))
 							sides++;
 						
 						if(sides == 3)
@@ -363,11 +369,11 @@ public class Graph
 					
 					
 					//Or if it's a teleportation point
-					if(!test && codeMat.get("teleport_bloc") == Mat[i][j])
+					/*if(!test && codeMat.get("teleport_bloc") == Mat[i][j])
 					{
 						test = true;
 						tpPoints.add(k);
-					}
+					}*/
 					
 					
 					if(test)
@@ -393,6 +399,8 @@ public class Graph
 			}
 		}
 		
+		System.out.println("pouet");
+		
 		k = k-1;
 		// Now we link them if they are close and on the same column
 		for(; k >= 2; k--)
@@ -406,7 +414,7 @@ public class Graph
 					int i = g.verPos.get(p).x + 1;
 					while(i < g.verPos.get(k).x && noWalls)
 					{
-						if(notaway.contains(Mat[i][col]))
+						if(!aWay.get(matC[i][col]))
 							noWalls = false;
 						i++;
 					}

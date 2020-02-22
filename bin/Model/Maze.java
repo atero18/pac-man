@@ -24,6 +24,7 @@ public class Maze {
 	private Graph graph;
 	private static Map<String, Integer> readParam = null;
 	private static Map<Integer, String> typeBlocs = null;
+	private static Map<Integer, Boolean> isAWay = null;
 	
 	//Simple constructor using fields
 	public Maze(int[][] matrix) throws ModelException
@@ -31,15 +32,15 @@ public class Maze {
 		this.matrix = matrix;
 		this.rows = matrix.length;
 		this.columns = matrix[0].length;
-		if(readParam == null || typeBlocs == null)
+		
+		if(readParam == null || typeBlocs == null || isAWay == null)
 			getParams();
-		graph = Graph.matToGraph(this.matrix, readParam);
+		graph = Graph.matToGraph(this.matrix, readParam, isAWay);
 	}
 	
 	public Maze(String file) throws ModelException
 	{
 		this(fileToMat(file));
-		
 	}
 	
 	/**
@@ -57,12 +58,11 @@ public class Maze {
 			//First reading, knowing the dims.
 			int matRows = 0;
 			int matCols = 0;
-			String data;
+			String[] data;
 			while(reader.hasNextLine())
 			{
 				matRows++;
-				data = reader.nextLine();
-				matCols = data.length();
+				matCols = reader.nextLine().split(",").length;
 			}
 			reader.close();
 			
@@ -72,9 +72,9 @@ public class Maze {
 			int i = 0;
 			while(reader.hasNextLine() && i < matRows)
 			{
-				data = reader.nextLine();
-				for(int j = 0; j < data.length(); j++)
-					Mat[i][j] = Character.getNumericValue(data.charAt(j));
+				data = reader.nextLine().split(",");
+				for(int j = 0; j < data.length; j++)
+					Mat[i][j] = Integer.parseInt(data[j]);
 				i++;
 			}
 			reader.close();
@@ -100,11 +100,12 @@ public class Maze {
 		File file = new File("settings/read_maze.txt");
 		readParam = new HashMap<>();
 		typeBlocs = new HashMap<>();
+		isAWay = new HashMap<>();
 		
 		try
 		{
 			Scanner reader = new Scanner(file);
-		    Pattern regex = Pattern.compile("([\\w_]*)=(\\d+)");
+		    Pattern regex = Pattern.compile("([\\w_]*)=(\\d+),([yn])");
 		    Matcher m;
 		    System.out.println("Reading maze parameters");
 		    while(reader.hasNextLine())
@@ -114,6 +115,15 @@ public class Maze {
 		    	{
 		    		readParam.put(m.group(1), Integer.parseInt(m.group(2)));
 		    		typeBlocs.put(Integer.parseInt(m.group(2)), m.group(1));
+		    		switch(m.group(3).charAt(0))
+		    		{
+		    		case 'y':
+		    			isAWay.put(Integer.parseInt(m.group(2)), true);
+		    		break;
+		    		default:
+		    			isAWay.put(Integer.parseInt(m.group(2)), false);
+		    		break;
+		    		}
 		    	}
 		    }
 		    System.out.println("maze parameters ok");
@@ -156,6 +166,8 @@ public class Maze {
 		File file = new File("settings/disp_maze.txt");
 		try
 		{
+			int[][] matC = cloneMat(this.matrix, true);
+			
 			Scanner reader = new Scanner(file);
 		    Pattern regex = Pattern.compile("([\\w_]*)=([\\w\\s_])$");
 		    Matcher m;
@@ -174,7 +186,13 @@ public class Maze {
 			{	
 				System.out.print("\n");
 				for(int j = 0; j < columns; j++)
-					System.out.print(viz.get(typeBlocs.get(matrix[i][j])));
+				{
+					if (viz.get(typeBlocs.get(matC[i][j])) != null)
+						System.out.print(viz.get(typeBlocs.get(matC[i][j])));
+					else
+						System.out.print("@");
+				}
+					
 			}
 		}
 		catch(FileNotFoundException e)
@@ -185,6 +203,37 @@ public class Maze {
 		{
 			throw new ModelException("Error during opening disp_maze settings file |" + e.getMessage());
 		}
+	}
+	
+	public static int[][] cloneMat(int[][] mat, boolean withoutTel) throws ModelException
+	{
+		int[][] matClone = new int[mat.length][mat[0].length];
+		
+		if(readParam == null || typeBlocs == null || isAWay == null)
+			getParams();			
+			
+		Pattern regex = Pattern.compile("^" + readParam.get("teleport_prefix") + "\\d?$");
+		Matcher m;
+		for(int i = 0; i < matClone.length; i++)
+		{
+			for(int j = 0; j < matClone[0].length; j++)
+			{
+				if(withoutTel)
+				{
+					m = regex.matcher(Integer.toString(mat[i][j]));
+					if(m.matches())
+						matClone[i][j] = readParam.get("teleport_prefix");
+					else
+						matClone[i][j] = mat[i][j];
+				}
+				else
+					matClone[i][j] = mat[i][j];
+					
+			}
+		}
+		
+		
+		return matClone;
 	}
 	
 	public static void main (String[] args)
