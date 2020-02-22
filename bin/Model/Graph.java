@@ -114,7 +114,7 @@ public class Graph
 	
 	/**
 	 * Add new edge to the graph (with symmetrical parameter)
-	 * @param symetrical 0 : nothing ; 1 : symmetrical ; -1 : anti-symmetrical 
+	 * @param symetrical 0 : nothing ; 1 : symmetrical ; -1 : anti-symmetrical ; -2 : Cancel auto-(j,i) in oriented
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void addEdge(int i, int j, Edge edge, int symmetrical) throws ModelException
@@ -125,7 +125,7 @@ public class Graph
 		}
 		
 		
-		if(!this.oriented && (!edges.containsKey(j) || !edges.get(j).containsKey(i)))
+		if(symmetrical != -2 && !this.oriented && (!edges.containsKey(j) || !edges.get(j).containsKey(i)))
 			symmetrical = 1;
 		
 		
@@ -320,7 +320,7 @@ public class Graph
 
 		int nrows = Mat.length;
 		int ncols = Mat[0].length;
-		int[][] matC = Maze.cloneMat(Mat, true); // Matrix without teleportation informations
+		int[][] matC = Maze.simplifyMat(Mat, true, true); // Matrix without teleportation informations
 		
 		int k = 1;
 		
@@ -369,11 +369,11 @@ public class Graph
 					
 					
 					//Or if it's a teleportation point
-					/*if(!test && codeMat.get("teleport_bloc") == Mat[i][j])
+					if(!test && codeMat.get("teleport_prefix") == matC[i][j])
 					{
 						test = true;
 						tpPoints.add(k);
-					}*/
+					}
 					
 					
 					if(test)
@@ -399,7 +399,6 @@ public class Graph
 			}
 		}
 		
-		System.out.println("pouet");
 		
 		k = k-1;
 		// Now we link them if they are close and on the same column
@@ -430,6 +429,34 @@ public class Graph
 		
 		//Teleportation points gestion (edges between them)
 		//TODO
+		while(tpPoints.size() >= 2)
+		{
+			int i = tpPoints.get(0);
+			int xI = g.verPos.get(i).x;
+			int yI = g.verPos.get(i).y;
+			tpPoints.remove(0);
+			int j;
+
+			
+			int p = 0;
+			while(p < tpPoints.size() && Mat[xI][yI] != Mat[g.verPos.get(tpPoints.get(p)).x][g.verPos.get(tpPoints.get(p)).y])
+				p++;
+			
+			// If we found a peer for i
+			if(p != tpPoints.size())
+			{
+				j = tpPoints.get(p);
+				tpPoints.remove(p);
+				
+				//Adding the i-j edge				
+				g.addEdge(i, j, new Edge(1, g.teleportDirection(i, matC, aWay)), -2);
+				
+				//Adding the j-i edge
+				g.addEdge(j,  i, new Edge(1, g.teleportDirection(j, matC, aWay)), -2);
+			}
+			
+		}
+		
 		
 		
 		
@@ -437,7 +464,27 @@ public class Graph
 		return g;
 	}
 	
+	/**
+	 * Return the direction for the edge created from a teleporation bloc
+	 * Actually only handle the blocs at the edge of the maze.
+	 * @param mat the matrix. !!! This matrix must be teleportation-informationless
+	 * @return
+	 */
+	private char teleportDirection(int k, int[][] matC, Map<Integer, Boolean> aWay)
+	{
+		int x = this.verPos.get(k).x, y = this.verPos.get(k).y; 
+		int nrows = matC.length;
+		
+		if(x <= 0)
+			return 'U';
+		else if (x >= nrows - 1)
+			return 'D';
+		else if(y <= 0)
+			return 'L';
+		else
+			return 'R';
 	
+	}
 	public void disp()
 	{
 		System.out.println("List of all the vertices with their edge(s)");

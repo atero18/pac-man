@@ -166,7 +166,7 @@ public class Maze {
 		File file = new File("settings/disp_maze.txt");
 		try
 		{
-			int[][] matC = cloneMat(this.matrix, true);
+			int[][] matC = simplifyMat(this.matrix, false, true);
 			
 			Scanner reader = new Scanner(file);
 		    Pattern regex = Pattern.compile("([\\w_]*)=([\\w\\s_])$");
@@ -205,7 +205,13 @@ public class Maze {
 		}
 	}
 	
-	public static int[][] cloneMat(int[][] mat, boolean withoutTel) throws ModelException
+	/**
+	 * Return a matrix with eventually modified informations
+	 * @param startP true if you want to replace pacman-start by an empty_bloc
+	 * @param teleportD true if you want to erase informations about teleportation
+	 * @throws ModelException
+	 */
+	public static int[][] simplifyMat(int[][] mat, boolean startP, boolean teleportD) throws ModelException
 	{
 		int[][] matClone = new int[mat.length][mat[0].length];
 		
@@ -213,25 +219,19 @@ public class Maze {
 			getParams();			
 			
 		Pattern regex = Pattern.compile("^" + readParam.get("teleport_prefix") + "\\d?$");
-		Matcher m;
 		for(int i = 0; i < matClone.length; i++)
 		{
 			for(int j = 0; j < matClone[0].length; j++)
 			{
-				if(withoutTel)
-				{
-					m = regex.matcher(Integer.toString(mat[i][j]));
-					if(m.matches())
-						matClone[i][j] = readParam.get("teleport_prefix");
-					else
-						matClone[i][j] = mat[i][j];
-				}
+				// Pac-man start point replaced by empty-bloc
+				if(startP && mat[i][j] == readParam.get("pacman_start"))
+					matClone[i][j] = readParam.get("empty_bloc");
+				else if(teleportD && regex.matcher(Integer.toString(mat[i][j])).matches())
+					matClone[i][j] = readParam.get("teleport_prefix");
 				else
 					matClone[i][j] = mat[i][j];
-					
 			}
 		}
-		
 		
 		return matClone;
 	}
@@ -244,6 +244,8 @@ public class Maze {
 			maze.printMat();
 			maze.graph.disp();
 			maze.dispMaze();
+			System.out.println(maze.graph.goTo(35, 37));
+			
 		}
 		catch(Exception e)
 		{
