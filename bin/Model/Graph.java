@@ -1,7 +1,6 @@
 package bin.Model;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 
 /**
@@ -39,7 +38,7 @@ public class Graph
 	 */
 	private Map<Integer, Map<Integer,Integer>> predecessors;
 	
-	static final float infty = 10000f;
+	static final float infty = 1000000f;
 	
 	public Graph(boolean oriented)
 	{
@@ -55,6 +54,28 @@ public class Graph
 		this(false);
 	}
 	
+	/**
+	 * Add a new vertex if it doens't already exist and if the coordinates ain't already taken
+	 * @param k number of the new vertices
+	 * @param x x-position of the vertices
+	 * @param y y-position of the vertices
+	 */
+	public boolean addVer(int k, int x, int y)
+	{
+		if (!existsVer(k))
+		{
+			Point newPoint = new Point(x,y);
+			for(Point p : verPos.values())
+			{
+				if (newPoint.equals(p))
+					return false;
+			}
+			
+			this.verPos.put(k, newPoint);
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Get number of vertices
@@ -85,31 +106,10 @@ public class Graph
 	public int[] getPosVer(int k)
 	{
 		if (existsVer(k))
-			return ((Point) verPos.get(k)).getCoord();
+			return verPos.get(k).getCoord();
 		
 		else
 			return null;
-	}
-	
-	/**
-	 * Add a new vertex if it doens't already exist and if the coordinates ain't already taken
-	 * @param k number of the new vertices
-	 * @param x x-position of the vertices
-	 * @param y y-position of the vertices
-	 */
-	public void addVer(int k, int x, int y)
-	{
-		if (!existsVer(k))
-		{
-			Point newPoint = new Point(x,y);
-			for(Point p : verPos.values())
-			{
-				if (newPoint.equals(p))
-					return;
-			}
-			
-			this.verPos.put(k, newPoint);
-		}
 	}
 	
 	/**
