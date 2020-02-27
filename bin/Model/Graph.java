@@ -143,6 +143,7 @@ public class Graph
 	/**
 	 * Add new edge to the graph (with symmetrical parameter)
 	 * @param symetrical 0 : nothing ; 1 : symmetrical ; -1 : anti-symmetrical ; -2 : Cancel auto-(j,i) in oriented
+	 * @throws ModelException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void addEdge(int i, int j, Edge edge, int symmetrical) throws ModelException
@@ -189,6 +190,7 @@ public class Graph
 	
 	/**
 	 * Add new edge to the graph
+	 * @throws ModelException
 	 */
 	public void addEdge(int i, int j, Edge edge) throws ModelException
 	{
@@ -252,17 +254,27 @@ public class Graph
 	/**
 	 * Determine all the predecessors for the shortest way from any point to another.
 	 */
-	public void calculPred() throws ModelException
+	public void calculPred()
 	{
+		try
+		{
 		this.predecessors = new HashMap<>();
 		for (Integer i : verPos.keySet())			
 			predecessors.put(i, Dijkstra(i));
+		}
+		catch(ModelException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
+		}
 	}
 	
 	/**
 	 * @param i the number of the vertex
 	 * @return All the predecessors for having the shortest way from i to another vertex
 	 * @see calculPred
+	 * @throws ModelException
 	 */
 	private Map<Integer,Integer> Dijkstra(int i) throws ModelException
 	{
@@ -414,7 +426,16 @@ public class Graph
 						 */
 						if(sameLineCo)
 						{
-							g.addEdge(k-1, k, new Edge((float) j - previousJ, 'R'));
+							try
+							{
+								g.addEdge(k-1, k, new Edge((float) j - previousJ, 'R'));
+							}
+							catch(ModelException e)
+							{
+								System.out.println(e.getMessage());
+								e.printStackTrace();
+								System.exit(e.hashCode());
+							}
 							
 						}
 						sameLineCo = true;
@@ -448,8 +469,18 @@ public class Graph
 					}
 					if(noWalls)
 					{
-						g.addEdge(p, k, new Edge((float) g.verPos.get(k).x - g.verPos.get(p).x, 'D'));
-						break;
+						try
+						{
+							g.addEdge(p, k, new Edge((float) g.verPos.get(k).x - g.verPos.get(p).x, 'D'));
+							break;
+						}
+						catch(ModelException e)
+						{
+							System.out.println(e.getMessage());
+							e.printStackTrace();
+							System.exit(e.hashCode());
+						}
+						
 					}
 				}
 			}
@@ -485,9 +516,6 @@ public class Graph
 			}
 			
 		}
-		
-		
-		
 		
 		g.calculPred();
 		return g;

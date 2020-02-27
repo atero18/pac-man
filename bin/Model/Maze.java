@@ -48,8 +48,7 @@ public class Maze {
 		return isAWay;
 	}
 
-	//Simple constructor using fields
-	public Maze(int[][] matrix) throws ModelException
+	public Maze(int[][] matrix)
 	{
 		this.matrix = matrix;
 		this.rows = matrix.length;
@@ -57,10 +56,20 @@ public class Maze {
 		
 		if(readParam == null || typeBlocs == null || isAWay == null)
 			getParams();
-		graph = Graph.matToGraph(this.matrix, readParam, isAWay);
+		
+		try
+		{
+			graph = Graph.matToGraph(this.matrix, readParam, isAWay);
+		}
+		catch(ModelException e)
+		{
+			System.out.println("Exception while creating Maze | " + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
+		}
 	}
 	
-	public Maze(String file) throws ModelException
+	public Maze(String file)
 	{
 		this(fileToMat(file));
 	}
@@ -69,13 +78,13 @@ public class Maze {
 	 * 
 	 * @param url relative (or absolute) link to the maze_file
 	 * @return the maze's Integer Matrix
-	 * @throws ModelException
 	 */
-	public static int[][] fileToMat(String url) throws ModelException
+	public static int[][] fileToMat(String url)
 	{
-		File file = new File(url);
+		
 		try
 		{
+			File file = new File(url);
 			Scanner reader = new Scanner(file);
 			//First reading, knowing the dims.
 			int matRows = 0;
@@ -104,21 +113,32 @@ public class Maze {
 		}
 		catch(FileNotFoundException e)
 		{
-			throw new ModelException("file not found -- loading Maze");
+			System.out.println("file not found -- loading Maze | " + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
+			return null;
 		}
 		catch(Exception e)
 		{
-			throw new ModelException("Error during opening maze file |" + e.getMessage());
+			System.out.println("Error during opening maze file |" + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
+			return null;
 		}
+		
 	}
 	
 	/**
 	 * Get the reading parameters from the read_maze.txt file (use regexp)
 	 * @see regex
-	 * @throws ModelException
 	 */
-	public static void getParams() throws ModelException
+	public static void getParams()
 	{
+		if(readParam != null && typeBlocs != null && isAWay != null)
+		{
+			System.out.println("Maze parameters : already charged");
+			return;
+		}
 		File file = new File("settings/read_maze.txt");
 		readParam = new HashMap<>();
 		typeBlocs = new HashMap<>();
@@ -153,11 +173,15 @@ public class Maze {
 		}
 		catch(FileNotFoundException e)
 		{
-			throw new ModelException("file not found -- loading Maze reading parameters");
+			System.out.println("file not found -- loading Maze reading parameters | " + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
 		}
 		catch(Exception e)
 		{
-			throw new ModelException("Error during opening maze settings file |" + e.getMessage());
+			System.out.println("Error during opening maze settings file |" + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
 		}
 	}
 	
@@ -179,9 +203,8 @@ public class Maze {
 	/**
 	 * Print on console the maze
 	 * @see regex
-	 * @throws ModelException
 	 */
-	public void dispMaze() throws ModelException
+	public void dispMaze()
 	{
 		HashMap<String, String> viz = new HashMap<>();
 		
@@ -219,11 +242,15 @@ public class Maze {
 		}
 		catch(FileNotFoundException e)
 		{
-			throw new ModelException("file not found -- loading disp_Maze parameters");
+			System.out.println("file not found -- loading disp_Maze parameters | " + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
 		}
 		catch(Exception e)
 		{
-			throw new ModelException("Error during opening disp_maze settings file |" + e.getMessage());
+			System.out.println("Error during opening disp_maze settings file | " + e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
 		}
 	}
 	
@@ -231,9 +258,8 @@ public class Maze {
 	 * Return a matrix with eventually modified informations
 	 * @param startP true if you want to replace pacman-start by an empty_bloc
 	 * @param teleportD true if you want to erase informations about teleportation
-	 * @throws ModelException
 	 */
-	public static int[][] simplifyMat(int[][] mat, boolean startP, boolean teleportD) throws ModelException
+	public static int[][] simplifyMat(int[][] mat, boolean startP, boolean teleportD)
 	{
 		int[][] matClone = new int[mat.length][mat[0].length];
 		
@@ -273,6 +299,5 @@ public class Maze {
 		{
 			System.out.println("Error, " + e.getMessage());
 		}
-	}
-	
+	}	
 }
