@@ -40,6 +40,34 @@ public class Graph
 	
 	static final float infty = 1000000f;
 	
+	/**
+	 * @return the verPos
+	 */
+	public HashMap<Integer, Point> getVerPos() {
+		return verPos;
+	}
+
+	/**
+	 * @return the edges
+	 */
+	public Map<Integer, HashMap<Integer, Edge>> getEdges() {
+		return edges;
+	}
+
+	/**
+	 * @return the oriented
+	 */
+	public boolean isOriented() {
+		return oriented;
+	}
+
+	/**
+	 * @return the predecessors
+	 */
+	public Map<Integer, Map<Integer, Integer>> getPredecessors() {
+		return predecessors;
+	}
+
 	public Graph(boolean oriented)
 	{
 		this.verPos = new HashMap<>();
@@ -142,7 +170,6 @@ public class Graph
 		
 		else
 		{
-			
 			HashMap m = new HashMap<Integer, Float>();
 			m.put(j, edge);
 			edges.put(i, m);
@@ -155,7 +182,7 @@ public class Graph
 			addEdge(j, i, edge.reverse(),0);
 		break;
 		case -1:
-			rmEdge(j,i);
+			rmEdge(j,i,false);
 		break;
 		}
 	}
@@ -170,38 +197,40 @@ public class Graph
 	
 	/**
 	 * Remove the edge from i to j (and j to i if this graph is non-oriented)
+	 * Set bothWays value = !oriented
 	 * @param i vertex 1
 	 * @param j vertex 2
 	 */
-	@SuppressWarnings("unchecked")
 	public void rmEdge(int i, int j)
 	{
+		rmEdge(i,j,!this.oriented);
+	}
+	
+	/**
+	 * Remove the edge from i to j with bothWays parameter (and j to i if this graph is non-oriented)
+	 * @param bothWays if true, j-i edge is also removed (automatically true for a non-oriented graph)
+	 */
+	@SuppressWarnings("unchecked")
+	public void rmEdge(int i, int j, boolean bothWays)
+	{
+		//bothways automatically true for a non-oriented graph
+		
 		if(hasNeighbour(i))
 		{
+			
 			@SuppressWarnings("rawtypes")
 			HashMap data = edges.get(i);
+			
 			data.remove(j);
+			
 			if(data.size() == 0)
 				edges.remove(i);
 			
 			else
 				edges.put(i, data);
 		}
-		
-		if(!this.oriented)
-			rmEdge(j,i);
-	}
-	
-	/**
-	 * Remove the edge from i to j with bothWays parameter (and j to i if this graph is non-oriented)
-	 * @param bothWays if true, j-i edge is also removed
-	 */
-	public void rmEdge(int i, int j, boolean bothWays)
-	{
-		//bothways automatically true for a non-oriented graph
-		rmEdge(i,j);
 		if(bothWays)
-			rmEdge(j,i);
+			rmEdge(j,i,false);
 	}
 	
 	/**
@@ -211,7 +240,7 @@ public class Graph
 	 */
 	public boolean hasNeighbour(int i)
 	{
-		if(this.edges.containsKey(i))
+		if(this.edges != null && this.edges.containsKey(i))
 		{
 			@SuppressWarnings("rawtypes")
 			Map data = (Map) edges.get(i);

@@ -26,6 +26,28 @@ public class Maze {
 	private static Map<Integer, String> typeBlocs = null;
 	private static Map<Integer, Boolean> isAWay = null;
 	
+	
+	/**
+	 * @return the readParam
+	 */
+	public static Map<String, Integer> getReadParam() {
+		return readParam;
+	}
+
+	/**
+	 * @return the typeBlocs
+	 */
+	public static Map<Integer, String> getTypeBlocs() {
+		return typeBlocs;
+	}
+
+	/**
+	 * @return the isAWay
+	 */
+	public static Map<Integer, Boolean> getIsAWay() {
+		return isAWay;
+	}
+
 	//Simple constructor using fields
 	public Maze(int[][] matrix) throws ModelException
 	{
