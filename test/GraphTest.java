@@ -10,6 +10,7 @@ import bin.Model.ModelException;
 
 /**
  * @author Atero
+ * @author Aleam
  * @version 0.0.1
  * @since 0.20.2
  */
@@ -57,10 +58,9 @@ class GraphTest {
 		assertNull(g.getPosVer(1));
 		g.addVer(1, 2, 3);
 		int[] p = g.getPosVer(1);
-		assertTrue(p[0] == 2 && p[1] == 3);
+		assertEquals(2, p[0]);
+		assertEquals(3, p[1]);
 	}
-
-	
 
 	@Test
 	void testAddEdgeIntIntEdgeInt() {
