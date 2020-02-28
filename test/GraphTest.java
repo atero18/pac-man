@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import bin.Model.Point;
 import bin.Model.Graph;
 import bin.Model.Maze;
 import bin.Model.Edge;
@@ -143,13 +144,22 @@ class GraphTest {
 
 	@Test
 	void testRmEdgeIntIntBoolean() throws ModelException{
+		// Check if an edge is correctly removed
 		g.addVer(1, 0, 0);
 		g.addVer(2, 0, 1);
+		g.addVer(3, 1, 1);
 		g.addEdge(1, 2, e, 1);
 		g.rmEdge(1, 2, false);
 		edges = g.getEdges();
 		assertFalse(edges.containsKey(1));
-		assertTrue(edges.containsKey(2));		
+		assertTrue(edges.containsKey(2));
+		
+		// Check if the edge is removed but not all edges (1,-)
+		g.addEdge(1, 2, e, 1);
+		g.addEdge(1, 3, e, 1);
+		g.rmEdge(1, 2, false);
+		edges = g.getEdges();
+		assertTrue(edges.containsKey(1));		
 	}
 
 	@Test
@@ -198,6 +208,26 @@ class GraphTest {
 		assertTrue(g.getEdges().containsKey(1));
 		assertTrue(g.getEdges().get(1).containsKey(2));
 	
+	}
+	
+	@Test
+	void testTPPeering() throws ModelException
+	{
+		int[][] mat = { {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+						{1,5,0,0,1,0,0,0,0,0,0,0,0,1,0,0,5,1},
+						{1,0,1,0,0,0,1,1,0,0,1,1,0,0,0,1,0,1},
+						{1,0,1,1,0,1,0,0,0,0,0,0,1,0,1,1,0,1},
+						{1,0,0,1,0,0,0,3,4,4,3,0,0,0,1,0,0,1},
+						{1,1,0,1,1,0,3,3,3,3,3,3,0,1,1,0,1,1},
+						{990,2,0,0,0,0,3,3,3,3,3,3,0,0,0,0,0,990},
+						{1,1,0,1,1,0,0,0,0,0,0,0,0,1,1,0,1,1},
+						{1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1,1},
+						{1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1},
+						{1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1},
+						{1,5,0,0,1,1,0,0,0,0,0,0,1,1,0,0,5,1},
+						{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
+		g = Graph.matToGraph(mat, Maze.getReadParam(), Maze.getIsAWay());
+		assertTrue(g.existsEdge(new Point(6,0), new Point(6,17), false));
 	}
 	
 	public boolean compareCharArray(Object[] t1, char[] t2)

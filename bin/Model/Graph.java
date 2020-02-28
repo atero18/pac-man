@@ -40,12 +40,6 @@ public class Graph
 	
 	static final float infty = 1000000f;
 	
-	/**
-	 * @return the verPos
-	 */
-	public HashMap<Integer, Point> getVerPos() {
-		return verPos;
-	}
 
 	/**
 	 * @return the edges
@@ -54,19 +48,6 @@ public class Graph
 		return edges;
 	}
 
-	/**
-	 * @return the oriented
-	 */
-	public boolean isOriented() {
-		return oriented;
-	}
-
-	/**
-	 * @return the predecessors
-	 */
-	public Map<Integer, Map<Integer, Integer>> getPredecessors() {
-		return predecessors;
-	}
 
 	public Graph(boolean oriented)
 	{
@@ -197,6 +178,40 @@ public class Graph
 		this.addEdge(i,j,edge,0);
 	}
 	
+	
+	/**
+	 * @param pA first point
+	 * @param pB second point
+	 * @param order true if you also want to check if an edge exists pB-pA 
+	 * @return true if it exists an edge pA-pB
+	 */
+	public boolean existsEdge(Point pA, Point pB, boolean order)
+	{
+		
+		if(verPos == null || verPos.size() == 0 || edges == null || edges.size() == 0)
+			return false;
+		
+		int a = -1, b = -1;
+		
+		for(Integer i : verPos.keySet())
+		{
+			if(pA.equals(verPos.get(i)))
+				a = i;
+			else if(pB.equals(verPos.get(i)))
+				b = i;
+		}
+		if(a == -1 || b == -1)
+			return false;
+		
+		if(edges.containsKey(a) && edges.get(a).containsKey(b))
+			return true;
+		
+		else if(order && edges.containsKey(b) && edges.get(b).containsKey(a))
+			return true;
+		
+		return false;
+	}
+	
 	/**
 	 * Remove the edge from i to j (and j to i if this graph is non-oriented)
 	 * Set bothWays value = !oriented
@@ -258,9 +273,9 @@ public class Graph
 	{
 		try
 		{
-		this.predecessors = new HashMap<>();
-		for (Integer i : verPos.keySet())			
-			predecessors.put(i, Dijkstra(i));
+			this.predecessors = new HashMap<>();
+			for (Integer i : verPos.keySet())			
+				predecessors.put(i, Dijkstra(i));
 		}
 		catch(ModelException e)
 		{
@@ -487,7 +502,7 @@ public class Graph
 		}
 		
 		
-		//Teleportation points gestion (edges between them)
+		//Teleportation points management (edges between them)
 		//TODO
 		while(tpPoints.size() >= 2)
 		{
