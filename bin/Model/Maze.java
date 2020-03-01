@@ -69,7 +69,7 @@ public class Maze {
 		}
 	}
 	
-	public Maze(String file)
+	public Maze(String file) throws ModelException
 	{
 		this(fileToMat(file));
 	}
@@ -77,11 +77,12 @@ public class Maze {
 	/**
 	 * 
 	 * @param url relative (or absolute) link to the maze_file
-	 * @return the maze's Integer Matrix
+	 * @return the maze's Integer Matrix. null if error during opening file
+	 * @throws ModelException if a value in the matrix is unknown
 	 */
-	public static int[][] fileToMat(String url)
+	public static int[][] fileToMat(String url) throws ModelException
 	{
-		
+		int Mat[][];
 		try
 		{
 			File file = new File(url);
@@ -98,7 +99,7 @@ public class Maze {
 			reader.close();
 			
 			
-			int[][] Mat = new int[matRows][matCols];
+			Mat = new int[matRows][matCols];
 			reader = new Scanner(file);
 			int i = 0;
 			while(reader.hasNextLine() && i < matRows)
@@ -109,22 +110,23 @@ public class Maze {
 				i++;
 			}
 			reader.close();
-			return Mat;
+			
 		}
 		catch(FileNotFoundException e)
 		{
 			System.out.println("file not found -- loading Maze | " + e.getMessage());
 			e.printStackTrace();
-			System.exit(e.hashCode());
 			return null;
 		}
 		catch(Exception e)
 		{
 			System.out.println("Error during opening maze file |" + e.getMessage());
 			e.printStackTrace();
-			System.exit(e.hashCode());
 			return null;
 		}
+		
+		simplifyMat(Mat,true,true);
+		return Mat;
 		
 	}
 	
@@ -258,9 +260,14 @@ public class Maze {
 	 * Return a matrix with eventually modified informations
 	 * @param startP true if you want to replace pacman-start by an empty_bloc
 	 * @param teleportD true if you want to erase informations about teleportation
+	 * @throws ModelException if the loaded matrix is null or if a value is unknown
 	 */
-	public static int[][] simplifyMat(int[][] mat, boolean startP, boolean teleportD)
+	public static int[][] simplifyMat(int[][] mat, boolean startP, boolean teleportD) throws ModelException
 	{
+		
+		if(mat == null)
+			throw new ModelException("simplifyMat : matrix loaded is NULL");
+		
 		int[][] matClone = new int[mat.length][mat[0].length];
 		
 		if(readParam == null || typeBlocs == null || isAWay == null)
@@ -276,6 +283,11 @@ public class Maze {
 					matClone[i][j] = readParam.get("empty_bloc");
 				else if(teleportD && regex.matcher(Integer.toString(mat[i][j])).matches())
 					matClone[i][j] = readParam.get("teleport_prefix");
+				
+				// If the value is unknown
+				else if(!regex.matcher(Integer.toString(mat[i][j])).matches() && !typeBlocs.containsKey(mat[i][j]))
+					throw new ModelException ("Unknown value in the matrix");
+					
 				else
 					matClone[i][j] = mat[i][j];
 			}
@@ -285,19 +297,31 @@ public class Maze {
 	}
 	
 	public static void main (String[] args)
-	{
+	{		
+		String urlMaze = "data/maze/maze_";
+		if(args.length == 1)
+		{
+			urlMaze += args[0] + ".txt";
+			System.out.println("Maze loaded : " + args[0]);
+		}
+		else
+		{
+			urlMaze += "1.txt";
+			System.out.println("Maze loaded : " + 1);
+		}
+		
 		try
 		{
-			Maze maze = new Maze("data/maze/maze_1.txt");
+			Maze maze = new Maze(urlMaze);
 			maze.printMat();
 			maze.graph.disp();
 			maze.dispMaze();
-			System.out.println(maze.graph.goTo(35, 37));
 			
 		}
 		catch(Exception e)
 		{
 			System.out.println("Error, " + e.getMessage());
+			e.printStackTrace();
 		}
 	}	
 }

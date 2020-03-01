@@ -376,8 +376,17 @@ public class Graph
 
 		int nrows = Mat.length;
 		int ncols = Mat[0].length;
-		int[][] matC = Maze.simplifyMat(Mat, true, true); // Matrix without teleportation informations
-		
+		int[][] matC = null;
+		try
+		{
+			matC = Maze.simplifyMat(Mat, true, true); // Matrix without teleportation informations
+		}
+		catch(ModelException e)
+		{
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			System.exit(e.hashCode());
+		}
 		int k = 1;
 		
 		
