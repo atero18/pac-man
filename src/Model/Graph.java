@@ -2,7 +2,6 @@ package src.Model;
 import java.util.*;
 
 
-
 /**
  * @author Atero
  * @version 0.0.1
@@ -12,7 +11,6 @@ import java.util.*;
 public class Graph
 {
 	// This is a 1-graph.
-	// perhaps remove the "private" states
 	
 	@Override
 	public int hashCode() {
@@ -26,10 +24,10 @@ public class Graph
 	}
 	
 	// Contains all the vertices and their positions
-	private HashMap<Integer,Point> verPos;
+	HashMap<Integer,Point<Integer>> verPos;
 	
 	// Contain all the edges (keys : the first vertices. Data : all the goals vertices and value of the edge
-	private Map<Integer, HashMap<Integer,Edge>> edges;
+	Map<Integer, HashMap<Integer,Edge>> edges;
 	private boolean oriented;
 	
 	// Contain all predecessors
@@ -73,8 +71,8 @@ public class Graph
 	{
 		if (!existsVer(k))
 		{
-			Point newPoint = new Point(x,y);
-			for(Point p : verPos.values())
+			Point<Integer> newPoint = new Point<>(x,y);
+			for(Point<Integer> p : verPos.values())
 			{
 				if (newPoint.equals(p))
 					return false;
@@ -96,6 +94,53 @@ public class Graph
 	}
 	
 	/**
+	 * @param pos Position in the maze
+	 * @param dir The direction the being is on
+	 * @return the closest Vertex, 0 if not found
+	 */
+	public int closestVertex(Point<Float> pos, char dir)
+	{
+		float min = infty;
+		int closest = 0;
+		for(Integer k : verPos.keySet())
+		{
+			Point<Integer> p = verPos.get(k);
+			switch(dir)
+			{
+			case 'R':
+				if(p.y == Math.round(pos.y) && p.x - pos.x < min)
+				{
+					min = p.x - pos.x;
+					closest = k;
+				}
+			break;
+			case 'L':
+				if(p.y == Math.round(pos.y) && pos.x - p.x < min)
+				{
+					min = pos.x - p.x;
+					closest = k;
+				}
+			break;
+			case 'U':
+				if(p.x == Math.round(pos.x) && pos.y - p.y < min)
+				{
+					min = pos.y - p.y;
+					closest = k;
+				}
+			break;
+			case 'D':
+				if(p.x == Math.round(pos.x) && p.y - pos.y < min)
+				{
+					min = p.y - pos.y;
+					closest = k;
+				}
+			break;
+			}
+		}
+		return closest;
+	}
+	
+	/**
 	 * Check if a vertex exists
 	 * @param k number of the considered vertex
 	 */
@@ -112,10 +157,10 @@ public class Graph
 		return existsVer(k) && existsVer(l);
 	}
 	
-	public int[] getPosVer(int k)
+	public Point<Integer> getPosVer(int k)
 	{
 		if (existsVer(k))
-			return verPos.get(k).getCoord();
+			return verPos.get(k);
 		
 		else
 			return null;
@@ -142,7 +187,6 @@ public class Graph
 		
 		if(hasNeighbour(i))
 		{
-			
 			HashMap data = (HashMap) edges.get(i).clone();
 			edges.remove(i);
 			data.put(j, edge);
@@ -185,7 +229,7 @@ public class Graph
 	 * @param order true if you also want to check if an edge exists pB-pA 
 	 * @return true if it exists an edge pA-pB
 	 */
-	public boolean existsEdge(Point pA, Point pB, boolean order)
+	public boolean existsEdge(Point<Integer> pA, Point<Integer> pB, boolean order)
 	{
 		
 		if(verPos == null || verPos.size() == 0 || edges == null || edges.size() == 0)
@@ -210,6 +254,30 @@ public class Graph
 			return true;
 		
 		return false;
+	}
+	
+	/**
+	 * @param k the considered vertex
+	 * @return all the direction we can go to from the vertex k
+	 */
+	public char[] getDir(int k) throws ModelException
+	{
+		ArrayList<Character> liste = new ArrayList<>();
+		if(!verPos.containsKey(k))
+			throw new ModelException("getDir : this vertex doesn't exist");
+		
+		if(edges.get(k).size() == 0)
+			return null;
+		
+		for(Integer i : edges.get(k).keySet())
+			liste.add(edges.get(k).get(i).getDir());
+		
+		char[] t = new char[liste.size()];
+		for(int i = 0; i < t.length; i++)
+			t[i] = liste.get(i);
+		
+		return t;
+		
 	}
 	
 	/**

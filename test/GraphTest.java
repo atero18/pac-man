@@ -73,9 +73,8 @@ class GraphTest {
 	void testGetPosVer() {
 		assertNull(g.getPosVer(1));
 		g.addVer(1, 2, 3);
-		int[] p = g.getPosVer(1);
-		assertEquals(2, p[0]);
-		assertEquals(3, p[1]);
+		Point<Integer> p = g.getPosVer(1);
+		assertTrue(p.equals(new Point<Integer>(2,3)));
 	}
 
 	@Test
@@ -227,7 +226,7 @@ class GraphTest {
 						{1,5,0,0,1,1,0,0,0,0,0,0,1,1,0,0,5,1},
 						{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
 		g = Graph.matToGraph(mat, Maze.getReadParam(), Maze.getIsAWay());
-		assertTrue(g.existsEdge(new Point(6,0), new Point(6,17), false));
+		assertTrue(g.existsEdge(new Point<Integer>(6,0), new Point<Integer>(6,17), false));
 	}
 	
 	public boolean compareCharArray(Object[] t1, char[] t2)

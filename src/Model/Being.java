@@ -1,15 +1,22 @@
 package src.Model;
 
-import java.util.Deque;
 
 /**
- * @author Aleam
+ * @author Atero
  * @version 0.0.1
  * @since 0.20.2
  */
 
-public abstract class Being {
+public interface Being
+{
 	
-	abstract Deque<Character> onthemove();
-
+	boolean isAlive();
+	
+	void manageMove();
+	
+	char getActMove();
+	
+	Point<Float> getPos();
+	
+	String toString();
 }
