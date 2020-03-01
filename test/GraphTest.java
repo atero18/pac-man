@@ -9,11 +9,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import bin.Model.Point;
-import bin.Model.Graph;
-import bin.Model.Maze;
-import bin.Model.Edge;
-import bin.Model.ModelException;
+import src.Model.Point;
+import src.Model.Graph;
+import src.Model.Maze;
+import src.Model.Edge;
+import src.Model.ModelException;
 
 /**
  * @author Atero

@@ -1,4 +1,4 @@
-package bin.Model;
+package src.Model;
 
 import java.io.File;
 import java.io.FileNotFoundException;

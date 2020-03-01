@@ -6,8 +6,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import bin.Model.Maze;
-import bin.Model.ModelException;
+import src.Model.Maze;
+import src.Model.ModelException;
 
 class MazeTest {
 

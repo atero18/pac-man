@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import bin.Model.Edge;
-import bin.Model.ModelException;
+import src.Model.Edge;
+import src.Model.ModelException;
 
 
 /**
