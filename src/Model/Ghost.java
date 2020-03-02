@@ -1,65 +1,77 @@
 package src.Model;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Random;
+import java.util.Set;
 
-public abstract class Ghost implements Being {
+public abstract class Ghost extends AbstBeing {
 	
 	String name;
 	String color;
-	Point<Float> pos;
-	Deque<Character> dir;
-	boolean alive;
+	
 	
 	public Ghost(String name, String color)
 	{
-		dir = new ArrayDeque<>();
-		alive = false;
+		super();
 		this.name = name;
 		this.color = color;
 	}
 	
-	@Override
-	public boolean isAlive() {
-		return this.alive;
-	}
-	
 	/**
 	 * @param g the Graph considered
+	 * @return an int[] with [0] first vertex and [1] the second
 	 */
-	//TODO
-	public void randomMove(Graph g)
-	{
-		int vertex = g.closestVertex(this.pos, this.dir.getLast());
-		try
-		{
-			char[] directions = g.getDir(vertex);
-			
-		}
-		catch(ModelException e)
-		{
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-			System.exit(e.hashCode());
-		}
+	public int[] randomDir(Graph g)
+	{	
+		return this.randomDir(g, g.closestVertex(this.pos, this.dir.getLast()));
 	}
-
-	@Override
-	public abstract void manageMove();
-
-	public char getActMove()
+	
+	public int[] randomDir(Graph g, int vertex)
 	{
-		if(this.dir.size() != 0)
-			return this.dir.getFirst();
+			int[] tab = new int[2];
+			tab[0] = vertex;
+			
+			Random ran = new Random();
+			Set<Integer> list = g.edges.get(vertex).keySet();
+			Integer[] direction = new Integer[list.size()];
+			
+			tab[1] = direction[ran.nextInt(direction.length)];
+			return tab;
+	}
+	
+	public void randomMove(Graph g, int nbDir)
+	{
+		int[] tab = new int[2];
+		tab = this.randomDir(g);
 		
-		else
-			return '0';
+		this.dir.addLast(g.edges.get(tab[0]).get(tab[1]).dir);
+		randomMove(g, nbDir - 1, tab[1]);
+		
+	}
+	/**
+	 * add new directions to the queue
+	 * @param g the graph considered
+	 * @param nbDir the number of directions you want to add
+	 * @param verStart the vertex from where you start
+	 */
+	public void randomMove(Graph g, int nbDir, int verStart)
+	{
+		if(nbDir <= 0)
+			return;
+		
+		int[] tab = new int[2];
+		tab[1] = verStart;
+		
+		while(nbDir > 0)
+		{
+			tab = this.randomDir(g, tab[1]);
+			this.dir.addLast(g.edges.get(tab[0]).get(tab[1]).dir);
+			nbDir--;
+		}
 	}
 	
 
+	
 	@Override
-	public Point<Float> getPos() {
-		return this.pos;
-	}
+	public abstract void manageMove(Graph g);
 
 }

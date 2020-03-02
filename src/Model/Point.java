@@ -33,6 +33,22 @@ public class Point<E>
 		return false;
 	}
 	
+	public void set(E x, E y)
+	{
+		this.x = x;
+		this.y = y;
+	}
+	
+	public void setX(E x)
+	{
+		this.x = x;
+	}
+	
+	public void setY(E y)
+	{
+		this.y = y;
+	}
+	
 	/**
 	 * @override
 	 */

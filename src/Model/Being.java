@@ -12,9 +12,11 @@ public interface Being
 	
 	boolean isAlive();
 	
-	void manageMove();
+	void manageMove(Graph g);
 	
 	char getActMove();
+	
+	void move(Graph g);
 	
 	Point<Float> getPos();
 	
