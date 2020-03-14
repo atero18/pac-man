@@ -102,7 +102,7 @@ public abstract class Being
 		paramCharged = true;
 	}
 
-	public abstract void manageMove(Graph g);
+	public abstract void manageMove(Maze m);
 	/**
 	 * @return the actual direction, '0' if there isn't.
 	 */
@@ -161,6 +161,7 @@ public abstract class Being
 		
 		return -1;
 	}
+
 	
 	public boolean samePos(Being b)
 	{

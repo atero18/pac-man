@@ -8,7 +8,6 @@ package src.Model;
  */
 public class Pacman extends Being
 {
-
 	boolean isSuper;
 	long timeSuperMS;
 	// The duration of the "super" state (in ms)
@@ -26,8 +25,9 @@ public class Pacman extends Being
 	}
 
 	@Override
-	public void manageMove(Graph g)
+	public void manageMove(Maze m)
 	{
+		Graph g = m.graph;
 		if(dir.size() != 0)
 			move();
 		
@@ -51,7 +51,6 @@ public class Pacman extends Being
 					}
 					else
 						dir.removeLast();
-					
 					
 				}
 				if(!change && dir.size() == 1)

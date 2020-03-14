@@ -8,10 +8,11 @@ public class Pokey extends Ghost {
 	}
 
 	@Override
-	public void manageMove(Graph g)
+	public void manageMove(Maze m)
 	{
+		super.manageMove(m);
+		Graph g = m.graph;
 		if(alive && dir.size() == 0)
 			this.randomMove(g, 5);
-
 	}
 }

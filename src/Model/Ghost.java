@@ -1,5 +1,6 @@
 package src.Model;
 
+import java.util.ArrayDeque;
 import java.util.Random;
 import java.util.Set;
 
@@ -12,16 +13,24 @@ public abstract class Ghost extends Being {
 	
 	String name;
 	String color;
-	boolean inZone;
-	static long timeMinInZone;
 	
+	String state; // inZone, goingOut, out, goToZone
+	static boolean anyGoingOut = false; // If a ghost is going outside
+	
+	
+	static long timeBeforeLastExit = 10000; // Time before the last ghost exit 
+	static long timeMinInZone;
+	static long timeOddOutMax = 3000;
+	long dateSinceInZone;
 	
 	public Ghost(String name, String color)
 	{
 		super();
 		this.name = name;
 		this.color = color;
-		this.inZone = true;
+		this.state = "inZone";
+		//TODO
+		dateSinceInZone = System.currentTimeMillis(); // Check later the interest of this line
 		
 	}
 	
@@ -78,16 +87,83 @@ public abstract class Ghost extends Being {
 		}
 	}
 	
+	public void goingOut()
+	{
+		if(state != "inZone" || anyGoingOut)
+			return;
+		
+		if(System.currentTimeMillis() - dateSinceInZone >= timeMinInZone)
+		{
+			// The ghost has an odd to go out, which increase with time
+			if(Math.random() < (System.currentTimeMillis() - (dateSinceInZone + timeMinInZone)) / timeOddOutMax)
+			{
+				anyGoingOut = true;
+				//TODO Let the ghost going outside
+			}
+		}
+	}	
 
 	public void move(Graph g)
 	{
 		if(onVertex(g) != -1)
 			dir.removeFirst();
 		
-		super.move();
+			super.move();
 	}
 	
 	@Override
-	public abstract void manageMove(Graph g);
+	public void manageMove(Maze m)
+	{
+		Graph g = m.graph;
+		goingOut();
+		move();
+		if(alive)
+		{
+			if(state == "goingOut" &&  onVertex(g) != -1)
+			{
+					state = "out";
+					anyGoingOut = false;
+			}
+		}
+		
+		// If the ghost is dead only since the last update
+		else if(state == "out")
+		{
+			
+			state = "goToZone";
+			int k = g.closestVertex(pos, dir.getFirst());
 
+			while(dir.size() != 1)
+				dir.removeFirst();
+			
+			if(onVertex(g) != -1)
+				dir.removeFirst();
+
+			int min = g.verPos.keySet().size();
+			ArrayDeque<Character> queueMin = new ArrayDeque<>();
+			try
+			{
+				for(Point<Integer> p : m.gZoneDoorsPos.keySet())
+				{
+					ArrayDeque<Character> queue = g.goTo(k, p);
+					if(queue.size() < min)
+						queueMin = queue;
+				}
+				while(queueMin.size() != 0)
+					dir.add(queueMin.pollFirst());
+			}
+			catch(ModelException e)
+			{
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+				System.exit(e.hashCode());
+			}
+		}
+		
+		// If the ghost is dead and close to the zone
+		else if(state == "goToZone" && dir.size() == 0)
+		{
+			//TODO
+		}
+	}
 }

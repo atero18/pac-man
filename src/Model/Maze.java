@@ -20,14 +20,17 @@ import java.util.regex.Matcher;
  */
 public class Maze {
 	
-	private int[][] matrix;
+	int[][] matrix;
 	int rows, columns;
-	private Graph graph;
+	Graph graph;
 	private static Map<String, Integer> readParam = null;
 	private static Map<Integer, String> typeBlocs = null;
 	private static Map<Integer, Boolean> isAWay = null;
-	private Set<Point<Integer>> dots = null;
-	private Set<Point<Integer>> superDots = null;
+	
+	Set<Point<Integer>> dots = null;
+	Set<Point<Integer>> superDots = null;
+	
+	Map<Point<Integer>, Character> gZoneDoorsPos = null;
 	
 	/**
 	 * @return the readParam
@@ -50,13 +53,14 @@ public class Maze {
 		return isAWay;
 	}
 
-	public Maze(int[][] matrix)
+	public Maze(int[][] matrix) throws ModelException
 	{
 		this.matrix = matrix;
 		this.rows = matrix.length;
 		this.columns = matrix[0].length;
 		this.dots = new HashSet<>();
 		this.superDots = new HashSet<>();
+		this.gZoneDoorsPos = new HashMap<>();
 		
 		if(readParam == null || typeBlocs == null || isAWay == null)
 			getParams();
@@ -82,7 +86,26 @@ public class Maze {
 				
 				else if(isAWay.get(matrix[i][j]))
 					this.dots.add(new Point<>(i,j));
+				
+				
+				// Ghost zone management
+				if(matrix[i][j] == readParam.get("ghost_out"))
+				{
+					char direction = 'O';
+					if(j > 0 && isAWay.get(matrix[i][j-1]))
+						direction = 'U';
+					else if(j < columns - 1 && isAWay.get(matrix[i][j+1]))
+						direction = 'D';
+					else if(i < 0 && isAWay.get(matrix[i-1][j]))
+						direction = 'L';
+					else if(i < rows - 1 && isAWay.get(matrix[i+1][j]))
+						direction = 'R';
 					
+					if(direction == 'O')
+						throw new ModelException("Error creating Maze : Wrong ghost zone");
+						
+					gZoneDoorsPos.put(new Point<Integer>(i,j), direction);
+				}
 			}
 		}
 	}

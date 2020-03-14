@@ -426,6 +426,19 @@ public class Graph
 		return way;
 	}
 	
+	public ArrayDeque<Character> goTo(int from, Point<Integer> p) throws ModelException
+	{
+		if(!verPos.containsValue(p))
+			throw new ModelException("Those vertices don't exist");
+		
+		for(Integer k : verPos.keySet())
+		{
+			if(verPos.get(k).equals(p))
+				return goTo(from,k);
+		}
+		return null;
+	}
+	
 	/**
 	 * Transform the matrix-maze in a graph
 	 * @param Mat The input matrix-maze

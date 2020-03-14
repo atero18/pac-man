@@ -9,6 +9,11 @@ import java.util.*;
  */
 public class Edge {
 	
+	float val;
+	char dir;
+	private static Set<Character> directions = null;
+	private static Map<Character, Character> opposites = null;
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -33,12 +38,8 @@ public class Edge {
 	public void setDir(char dir) {
 		this.dir = dir;
 	}
-
-	float val;
-	char dir;
 	
-	private static Set<Character> directions = null;
-	private static Map<Character, Character> opposites = null;
+
 	
 	
 	
