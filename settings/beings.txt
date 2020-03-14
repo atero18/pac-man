@@ -1,0 +1,4 @@
+velocity:0.5
+deltaPos:0.1
+G_timeMinInZone:3000
+P_superDurationMS:5000

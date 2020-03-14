@@ -3,10 +3,17 @@ package src.Model;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * @author Atero
+ * @version 0.0.1
+ * @since 0.20.2
+ */
 public abstract class Ghost extends Being {
 	
 	String name;
 	String color;
+	boolean inZone;
+	static long timeMinInZone;
 	
 	
 	public Ghost(String name, String color)
@@ -14,6 +21,8 @@ public abstract class Ghost extends Being {
 		super();
 		this.name = name;
 		this.color = color;
+		this.inZone = true;
+		
 	}
 	
 	/**
@@ -70,6 +79,13 @@ public abstract class Ghost extends Being {
 	}
 	
 
+	public void move(Graph g)
+	{
+		if(onVertex(g) != -1)
+			dir.removeFirst();
+		
+		super.move();
+	}
 	
 	@Override
 	public abstract void manageMove(Graph g);

@@ -14,5 +14,4 @@ public class Pokey extends Ghost {
 			this.randomMove(g, 5);
 
 	}
-
 }

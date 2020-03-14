@@ -3,9 +3,10 @@ package src.Model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
-
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -25,7 +26,8 @@ public class Maze {
 	private static Map<String, Integer> readParam = null;
 	private static Map<Integer, String> typeBlocs = null;
 	private static Map<Integer, Boolean> isAWay = null;
-	
+	private Set<Point<Integer>> dots = null;
+	private Set<Point<Integer>> superDots = null;
 	
 	/**
 	 * @return the readParam
@@ -53,6 +55,8 @@ public class Maze {
 		this.matrix = matrix;
 		this.rows = matrix.length;
 		this.columns = matrix[0].length;
+		this.dots = new HashSet<>();
+		this.superDots = new HashSet<>();
 		
 		if(readParam == null || typeBlocs == null || isAWay == null)
 			getParams();
@@ -66,6 +70,20 @@ public class Maze {
 			System.out.println("Exception while creating Maze | " + e.getMessage());
 			e.printStackTrace();
 			System.exit(e.hashCode());
+		}
+		
+		for(int i = 0; i < this.rows; i++)
+		{
+			for(int j = 0; j < this.columns; j++)
+			{
+				// Super dot management 
+				if(matrix[i][j] == readParam.get("super_dot"))
+					this.superDots.add(new Point<>(i,j));
+				
+				else if(isAWay.get(matrix[i][j]))
+					this.dots.add(new Point<>(i,j));
+					
+			}
 		}
 	}
 	
@@ -294,6 +312,18 @@ public class Maze {
 		}
 		
 		return matClone;
+	}
+	
+	/**
+	 * 
+	 * @return the number of dots (normal + super)
+	 */
+	public int nbDots()
+	{
+		if(this.dots == null || this.superDots == null)
+			return 0;
+		
+		return this.dots.size() + this.superDots.size();
 	}
 	
 	public static void main (String[] args)
