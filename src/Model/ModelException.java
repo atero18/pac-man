@@ -12,4 +12,16 @@ public class ModelException extends Exception
 	{
 		super("Model Exception - " + errorMessage);
 	}
+	
+	public void fatalError(String message)
+	{
+		System.out.println(message + " " + this.getMessage());
+		this.printStackTrace();
+		System.exit(this.hashCode());
+	}
+	
+	public void fatalError()
+	{
+		this.fatalError("");
+	}
 }

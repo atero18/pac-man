@@ -76,9 +76,7 @@ public class Maze {
 		}
 		catch(ModelException e)
 		{
-			System.out.println("Exception while creating Maze | " + e.getMessage());
-			e.printStackTrace();
-			System.exit(e.hashCode());
+			e.fatalError("Exception while creating Maze");
 		}
 		
 		for(int i = 0; i < this.rows; i++)

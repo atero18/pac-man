@@ -347,9 +347,7 @@ public class Graph
 		}
 		catch(ModelException e)
 		{
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-			System.exit(e.hashCode());
+			e.fatalError();
 		}
 	}
 	
@@ -464,9 +462,7 @@ public class Graph
 		}
 		catch(ModelException e)
 		{
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-			System.exit(e.hashCode());
+			e.fatalError();
 		}
 		int k = 1;
 		
@@ -537,9 +533,7 @@ public class Graph
 							}
 							catch(ModelException e)
 							{
-								System.out.println(e.getMessage());
-								e.printStackTrace();
-								System.exit(e.hashCode());
+								e.fatalError();
 							}
 							
 						}
@@ -581,9 +575,7 @@ public class Graph
 						}
 						catch(ModelException e)
 						{
-							System.out.println(e.getMessage());
-							e.printStackTrace();
-							System.exit(e.hashCode());
+							e.fatalError();
 						}
 						
 					}
