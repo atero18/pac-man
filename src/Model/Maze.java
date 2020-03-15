@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -31,6 +32,10 @@ public class Maze {
 	Set<Point<Integer>> superDots = null;
 	
 	Map<Point<Integer>, Character> gZoneDoorsPos = null;
+	
+	private final int NBGHOSTS = 4;
+	
+	Ghost ghosts[];
 	
 	/**
 	 * @return the readParam
@@ -107,6 +112,38 @@ public class Maze {
 					gZoneDoorsPos.put(new Point<Integer>(i,j), direction);
 				}
 			}
+		}
+		
+		// Ghosts creation
+		ghosts = new Ghost[NBGHOSTS];
+		Iterator<Point<Integer>> it = null;
+		for(int i = 0; i < ghosts.length; i++)
+		{
+			if(it == null || !it.hasNext())
+				it = gZoneDoorsPos.keySet().iterator();
+			
+			Point<Integer> p = it.next();
+			float x = (float) p.x;
+			float y = (float) p.y;
+			
+			ghosts[i] = new Pokey("Pokey_" + i, "pink");
+			
+			// Put the ghost on a block in the zone
+			switch(gZoneDoorsPos.get(p))
+			{
+			case 'U':
+				y++;
+			break;
+			case 'D':
+				y--;
+			break;
+			case 'L':
+				x++;
+			break;
+			case 'R':
+				x--;
+			}
+			ghosts[i].pos = new Point<Float>(x,y);
 		}
 	}
 	
