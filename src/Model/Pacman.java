@@ -33,12 +33,22 @@ public class Pacman extends Being
 			move();
 		
 		int k = onVertex(g);
-		if(k != -1)
+		
+		
+
+		//TODO super dot manage
+		if(k != -1 && alive)
 		{
+			// If pm is on a bloc with a dot, it's erased
+			if(m.matrix[Math.round(pos.x)][Math.round(pos.y)] == Maze.readParam.get("empty_bloc"))
+				m.dots.remove(new Point<Integer>(Math.round(pos.x),Math.round(pos.y)));
+			
 			try
 			{
 				char[] availDir = g.getDir(k);
 				boolean change = false;
+				
+				// If pacman has two directions recorded
 				if(dir.size() == 2)
 				{
 					int i = 0;
@@ -54,6 +64,8 @@ public class Pacman extends Being
 						dir.removeLast();
 					
 				}
+				
+				// If pacman has only one direction recorded
 				if(!change && dir.size() == 1)
 				{
 					int i = 0;

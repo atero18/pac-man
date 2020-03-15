@@ -263,6 +263,19 @@ public class Maze {
 		}
 	}
 	
+	
+	public Point<Integer> getPMStart() throws ModelException
+	{
+		for(int i = 0; i < rows; i++)
+		{
+			for(int j = 0; j < columns; j++)
+			{
+				if(matrix[i][j] == readParam.get("pacman_start"))
+					return new Point<Integer>(i,j);
+			}
+		}
+		throw new ModelException("No pacman_start bloc found");
+	}
 	/**
 	 * Print on console the matrix
 	 */
