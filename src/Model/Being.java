@@ -109,6 +109,8 @@ public abstract class Being
 	
 	public void move()
 	{
+		if(dir == null || dir.size() == 0)
+				return;
 		
 		switch(dir.getFirst())
 		{

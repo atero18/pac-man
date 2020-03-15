@@ -11,8 +11,8 @@ public class Edge {
 	
 	float val;
 	char dir;
-	private static Set<Character> directions = null;
-	private static Map<Character, Character> opposites = null;
+	static Set<Character> directions = null;
+	static Map<Character, Character> opposites = null;
 	
 	@Override
 	public int hashCode() {

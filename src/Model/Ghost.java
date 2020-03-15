@@ -1,6 +1,7 @@
 package src.Model;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public abstract class Ghost extends Being {
 	String name;
 	String color;
 	
-	String state; // inZone, goingOut, out, goToZone
+	String state; // inZone, goingOut, out, goingIn, goToZone
 	static boolean anyGoingOut = false; // If a ghost is going outside
 	
 	
@@ -87,10 +88,10 @@ public abstract class Ghost extends Being {
 		}
 	}
 	
-	public void goingOut()
+	public boolean goingOut(Maze m)
 	{
 		if(state != "inZone" || anyGoingOut)
-			return;
+			return false;
 		
 		if(System.currentTimeMillis() - dateSinceInZone >= timeMinInZone)
 		{
@@ -98,9 +99,46 @@ public abstract class Ghost extends Being {
 			if(Math.random() < (System.currentTimeMillis() - (dateSinceInZone + timeMinInZone)) / timeOddOutMax)
 			{
 				anyGoingOut = true;
+				state = "goingOut";
+				
 				//TODO Let the ghost going outside
+				Iterator<Point<Integer>> it = m.gZoneDoorsPos.keySet().iterator();
+				boolean cont = false;
+				while(it.hasNext() && !cont)
+				{
+					Point<Integer> p = it.next();
+					int x = p.x;
+					int y = p.y;
+					while(!cont && x > 0 && x < m.rows-1 && y > 0 && y < m.columns-1 && 
+							(m.matrix[x][y] == Maze.readParam.get("ghost_zone") || m.matrix[x][y] == Maze.readParam.get("ghost_out")))
+					{
+						switch(m.gZoneDoorsPos.get(p))
+						{
+						case 'U':
+							y++;
+						break;
+						case 'D':
+							y--;
+						break;
+						case 'L':
+							x++;
+						break;
+						case 'R':
+							x--;
+						}
+						if(pos.x == x && pos.y == y)
+						{
+							cont = true;
+							dir.addFirst(m.gZoneDoorsPos.get(p));
+						}
+					}
+				}
+				
+				return true;
+				
 			}
 		}
+		return false;
 	}	
 
 	public void move(Graph g)
@@ -115,8 +153,9 @@ public abstract class Ghost extends Being {
 	public void manageMove(Maze m)
 	{
 		Graph g = m.graph;
-		goingOut();
 		move();
+		goingOut(m);
+		
 		if(alive)
 		{
 			if(state == "goingOut" &&  onVertex(g) != -1)
@@ -145,8 +184,25 @@ public abstract class Ghost extends Being {
 			{
 				for(Point<Integer> p : m.gZoneDoorsPos.keySet())
 				{
-					ArrayDeque<Character> queue = g.goTo(k, p);
-					if(queue.size() < min)
+					int x = p.x;
+					int y = p.y;
+					switch(m.gZoneDoorsPos.get(p))
+					{
+					case 'U':
+						y--;
+					break;
+					case 'D':
+						y++;
+					break;
+					case 'L':
+						x--;
+					break;
+					case 'R':
+						x++;
+					break;
+					}
+					ArrayDeque<Character> queue = g.goTo(k, new Point<Integer>(x,y));
+					if(queue.size() <= min)
 						queueMin = queue;
 				}
 				while(queueMin.size() != 0)
@@ -163,7 +219,76 @@ public abstract class Ghost extends Being {
 		// If the ghost is dead and close to the zone
 		else if(state == "goToZone" && dir.size() == 0)
 		{
-			//TODO
+			state = "goingIn";
+
+			Iterator<Point<Integer>> it = m.gZoneDoorsPos.keySet().iterator();
+			boolean cont = false;
+			while(it.hasNext() && !cont)
+			{
+				Point<Integer> p = it.next();
+				int x = p.x;
+				int y = p.y;
+				switch(m.gZoneDoorsPos.get(p))
+				{
+				case 'U':
+					y--;
+				break;
+				case 'D':
+					y++;
+				break;
+				case 'L':
+					x--;
+				break;
+				case 'R':
+					x++;
+				break;
+				}
+				if(pos.x == x && pos.y == y)
+				{
+					dir.addFirst(Edge.opposites.get(m.gZoneDoorsPos.get(p)));
+					cont = true;
+				}
+			}
+		}
+		
+		// If the ghost is going inside the zone (and has just arrived)
+		else if(state == "goingIn")
+		{
+			Iterator<Point<Integer>> it = m.gZoneDoorsPos.keySet().iterator();
+			boolean cont = false;
+			while(it.hasNext() && !cont)
+			{
+				Point<Integer> p = it.next();
+				int x = p.x;
+				int y = p.y;
+				switch(m.gZoneDoorsPos.get(p))
+				{
+				case 'U':
+					y++;
+				break;
+				case 'D':
+					y--;
+				break;
+				case 'L':
+					x++;
+				break;
+				case 'R':
+					x--;
+				break;
+				}
+				if(pos.x == Math.round(pos.x) && pos.y == Math.round(pos.y) && pos.x == x && pos.y == y)
+				{
+					dir.removeFirst();
+					cont = true;
+					state = "inZone";
+					dateSinceInZone = System.currentTimeMillis();
+				}
+			}
+		}
+		else if(state == "goingOut")
+		{
+			alive = true;
+			state = "out";
 		}
 	}
 }

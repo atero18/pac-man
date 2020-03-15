@@ -23,7 +23,7 @@ public class Maze {
 	int[][] matrix;
 	int rows, columns;
 	Graph graph;
-	private static Map<String, Integer> readParam = null;
+	static Map<String, Integer> readParam = null;
 	private static Map<Integer, String> typeBlocs = null;
 	private static Map<Integer, Boolean> isAWay = null;
 	

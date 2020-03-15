@@ -12,7 +12,7 @@ public class Pokey extends Ghost {
 	{
 		super.manageMove(m);
 		Graph g = m.graph;
-		if(alive && dir.size() == 0)
+		if(alive && state == "out" && dir.size() == 0)
 			this.randomMove(g, 5);
 	}
 }

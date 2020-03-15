@@ -1,5 +1,6 @@
 package src.Model;
 
+import java.util.Map;
 
 /**
  * @author Atero
@@ -28,7 +29,7 @@ public class Pacman extends Being
 	public void manageMove(Maze m)
 	{
 		Graph g = m.graph;
-		if(dir.size() != 0)
+		if(alive)
 			move();
 		
 		int k = onVertex(g);
@@ -91,5 +92,51 @@ public class Pacman extends Being
 			this.isSuper = false;
 		
 		return this.isSuper;
+	}
+	
+	public boolean addMove(Graph g, char newDir) throws ModelException
+	{
+		if(dir == null)
+			return false;
+		
+		else if(dir.size() == 1)
+		{
+			int k = onVertex(g);
+			if(k == -1 && newDir == Edge.opposites.get(dir.getFirst()))
+			{
+				dir.removeFirst();
+				dir.addFirst(newDir);
+			}
+				
+			else
+				dir.addLast(newDir);
+			
+			return true;
+		}
+		
+		else if(dir.size() == 0)
+		{
+			if(onVertex(g) != -1)
+				return true;
+			
+			else
+			{
+				int k = onVertex(g);
+				if(k == -1)
+					throw new ModelException("Error while trying move Pac-Man : not on a vertex");
+				
+				Map<Integer,Edge> edges = g.edges.get(k);
+				for(Integer i : edges.keySet())
+				{
+					if(edges.get(i).dir == newDir)
+					{
+						dir.addFirst(newDir);
+						return true;
+					}
+				}
+				
+			}
+		}
+		return false;
 	}
 }
