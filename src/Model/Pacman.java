@@ -10,6 +10,7 @@ import java.util.Map;
 public class Pacman extends Being
 {
 	boolean isSuper;
+	int nbLifes;
 	long timeSuperMS;
 	// The duration of the "super" state (in ms)
 	static long superDuration;
@@ -17,6 +18,7 @@ public class Pacman extends Being
 	public Pacman(Point<Float> pos)
 	{
 		super(pos);
+		this.nbLifes = 3;
 		isSuper = false;
 	}
 	
@@ -33,15 +35,21 @@ public class Pacman extends Being
 			move();
 		
 		int k = onVertex(g);
-		
-		
 
-		//TODO super dot manage
 		if(k != -1 && alive)
 		{
+			int x = Math.round(pos.x);
+			int y = Math.round(pos.y);
 			// If pm is on a bloc with a dot, it's erased
-			if(m.matrix[Math.round(pos.x)][Math.round(pos.y)] == Maze.readParam.get("empty_bloc"))
-				m.dots.remove(new Point<Integer>(Math.round(pos.x),Math.round(pos.y)));
+			if(m.matrix[x][y] == Maze.readParam.get("empty_bloc"))
+				m.dots.remove(new Point<Integer>(x,y));
+			
+			// If pm is on a bloc with a Super dot
+			if(m.matrix[x][y] == Maze.readParam.get("super_dot") && m.superDots.contains(new Point<Integer>(x,y)))
+			{
+				m.superDots.remove(new Point<Integer>(x,y));
+				this.startSuper();
+			}
 			
 			try
 			{

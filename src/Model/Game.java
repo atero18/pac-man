@@ -5,11 +5,10 @@ import java.util.List;
 
 public class Game
 {
-
-	
 	List<Maze> mazes;
 	Pacman pm;
 	int actualMaze;
+	static int FREQ = 24;
 	
 	public Game()
 	{
@@ -18,6 +17,11 @@ public class Game
 		
 		try
 		{
+			if(!Being.paramCharged)
+			{
+				Being.loadParams();
+				Being.velocity /= FREQ;
+			}
 			Point<Integer> p = mazes.get(actualMaze).getPMStart();
 			Point<Float> pbis = new Point<>((float) p.x, (float) p.y);
 			pm = new Pacman(pbis);
@@ -42,18 +46,47 @@ public class Game
 		}
 	}
 
-	public void loop()
+	public boolean loop()
 	{
 		Maze m = mazes.get(actualMaze);
-		pm.manageMove(m);
 		Ghost[] ghosts = m.ghosts;
 		for(int i = 0; i < ghosts.length; i++)
+		{
 			ghosts[i].manageMove(m);
-		
-		// TODO collision between pm and ghosts
-		// TODO check dots disappearing
-		
-		
+			
+			// Collisions between pacman and ghosts
+			if(pm.alive && ghosts[i].alive && pm.samePos(ghosts[i]))
+			{
+				if(!pm.isSuper)
+				{
+					pm.alive = false;
+					pm.nbLifes--;
+				}
+				else
+					ghosts[i].alive = false;
+			}
+		}
+		pm.manageMove(m);
+		return pm.alive;
+	}
+	
+	public void start_game()
+	{
+		long tRefresh;
+		int sumDots;
+		do
+		{
+			tRefresh = System.currentTimeMillis();
+			loop();
+			sumDots = 0;
+			for(int i = 0; i < mazes.size(); i++)
+			{
+				sumDots += mazes.get(i).nbDots();
+			}
+			
+			while(System.currentTimeMillis() - tRefresh <= 1000 / FREQ) {}
+		}while(pm.nbLifes >= 0 && sumDots > 0);
+		// TODO consequences at the end
 	}
 	
 	public static void main(String[] args)
