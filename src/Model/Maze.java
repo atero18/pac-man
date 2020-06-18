@@ -87,7 +87,7 @@ public class Maze {
 				if(matrix[i][j] == readParam.get("super_dot"))
 					this.superDots.add(new Point<>(i,j));
 				
-				else if(isAWay.get(matrix[i][j]))
+				else if(isAWay.containsKey(matrix[i][j]) && isAWay.get(matrix[i][j]))
 					this.dots.add(new Point<>(i,j));
 				
 				
@@ -95,14 +95,16 @@ public class Maze {
 				if(matrix[i][j] == readParam.get("ghost_out"))
 				{
 					char direction = 'O';
+					System.out.println(i + "," + j + " " + matrix[i-1][j] + " " + isAWay.get(matrix[i-1][j]));
+					
 					if(j > 0 && isAWay.get(matrix[i][j-1]))
-						direction = 'U';
-					else if(j < columns - 1 && isAWay.get(matrix[i][j+1]))
-						direction = 'D';
-					else if(i < 0 && isAWay.get(matrix[i-1][j]))
 						direction = 'L';
-					else if(i < rows - 1 && isAWay.get(matrix[i+1][j]))
+					else if(j < columns - 1 && isAWay.get(matrix[i][j+1]))
 						direction = 'R';
+					else if(i > 0 && isAWay.get(matrix[i-1][j]))
+						direction = 'U';
+					else if(i < rows - 1 && isAWay.get(matrix[i+1][j]))
+						direction = 'D';
 					
 					if(direction == 'O')
 						throw new ModelException("Error creating Maze : Wrong ghost zone");
