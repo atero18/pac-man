@@ -95,7 +95,6 @@ public class Maze {
 				if(matrix[i][j] == readParam.get("ghost_out"))
 				{
 					char direction = 'O';
-					System.out.println(i + "," + j + " " + matrix[i-1][j] + " " + isAWay.get(matrix[i-1][j]));
 					
 					if(j > 0 && isAWay.get(matrix[i][j-1]))
 						direction = 'L';
@@ -403,15 +402,12 @@ public class Maze {
 	{		
 		String urlMaze = "data/maze/maze_";
 		if(args.length == 1)
-		{
 			urlMaze += args[0] + ".txt";
-			System.out.println("Maze loaded : " + args[0]);
-		}
+			
 		else
-		{
 			urlMaze += "1.txt";
-			System.out.println("Maze loaded : " + 1);
-		}
+
+		System.out.println("Maze loaded : " + urlMaze);
 		
 		try
 		{
